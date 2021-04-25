@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31019.35
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DuncanLaud.WebUI", "DuncanLaud.WebUI/DuncanLaud.WebUI.csproj", "{0C713E38-E84B-4E50-823E-B9C86BBC9486}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DuncanLaud.WebUI", "DuncanLaud.WebUI\DuncanLaud.WebUI.csproj", "{00204D14-8C02-4658-ADA8-BE7751F90453}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,10 +11,10 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{0C713E38-E84B-4E50-823E-B9C86BBC9486}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0C713E38-E84B-4E50-823E-B9C86BBC9486}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0C713E38-E84B-4E50-823E-B9C86BBC9486}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0C713E38-E84B-4E50-823E-B9C86BBC9486}.Release|Any CPU.Build.0 = Release|Any CPU
+		{00204D14-8C02-4658-ADA8-BE7751F90453}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{00204D14-8C02-4658-ADA8-BE7751F90453}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{00204D14-8C02-4658-ADA8-BE7751F90453}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{00204D14-8C02-4658-ADA8-BE7751F90453}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
