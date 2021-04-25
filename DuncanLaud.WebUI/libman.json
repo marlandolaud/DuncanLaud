@@ -7,7 +7,7 @@
       "destination": "wwwroot/lib/font-awesome/"
     },
     {
-      "library": "angular.js@1.5.9",
+      "library": "angular.js@1.5.11",
       "destination": "wwwroot/lib/angular.js/"
     }
   ,
