@@ -1,0 +1,92 @@
+﻿<div class="content-body" ng-if="results.length > 0">
+
+    <div ng-repeat="result in results">
+
+        <div class="row">
+            <div class="col-md-12">
+                <h1>{{result.Name}}</h1>
+                <h2 ng-if="result.ISBN10 <= 0">Coming Soon!</h2>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12 col-md-4">
+                <img class="tips" ng-src="{{result.ThumbnailURL}}" />
+            </div>
+            <div class="col-sm-12 col-md-8">
+                <div ng-if="result.ISBN10 > 0">
+                    <div>
+                        <span>Author:</span>
+                        <span>{{result.Author}}</span>
+                    </div>
+                    <div>
+                        <span>ISBN-10:</span> 
+                        <span>{{result.ISBN10}}</span>
+                    </div>
+                    <div>
+                        <span>ISBN-13:</span>  
+                        <span>{{result.ISBN13}}</span>  
+                    </div>
+                    <div>
+                        <span>Pages:</span>
+                        <span>{{result.Pages}}</span>
+                    </div>
+                    <div>
+                        <span>Publisher:</span>
+                        <span>{{result.Publisher}}</span>                     
+                    </div>
+                    <div>
+                        <span>Published:</span>
+                        <span>{{result.publishDate | date: 'MMMM yyyy'}}</span>
+                    </div>
+                    <div>
+                        <span>Language:</span>
+                        <span>{{result.Language}}</span>
+                    </div>
+                    <div>
+                        <span>Product Dimensions:</span>
+                        <span ng-repeat="x in result.ProductDimensionsInches">
+                            <span>{{x}}</span>
+                            <span>{{$last ? '"' : '" x '}}</span>
+                        </span>
+                    </div> 
+                    <div>
+                        <span>Shipping Weight</span>
+                        <span>{{result.ShippingWeightOunces}}</span>
+                        <span class="sub">oz</span>
+                    </div>
+                    <div>
+                        <span>Suggested Retail Price:</span>
+                        <span ng-repeat="x in result.SuggestedRetailPriceUSD">
+                            <span>{{x}}</span>
+                            <span>$</span>
+                            <span>{{$last ? '' : ', '}}</span>
+                        </span>
+                    </div> 
+                    <div>
+                        <a ng-href="{{result.PurchaseURL}}">
+                            <img src="https://www.paypalobjects.com/en_US/i/btn/btn_buynowCC_LG.gif" alt="PayPal - The safer, easier way to pay online!" 
+                                 width="171" height="47" border="0" />
+                        </a>
+                    </div>
+                </div>                    
+            </div>
+        </div>
+        <div class="row" ng-if="result.ISBN10 > 0">
+            <div class="col-sm-12">
+                <h2 ng-bind="result.DescriptionHeading"></h2>
+                <p ng-bind-html="result.DescriptionHtmlBody"></p>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div ng-if="results.length == 0">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="jumbotron">
+                <h1>Book not found!</h1>
+            </div>
+        </div>        
+    </div>
+</div>

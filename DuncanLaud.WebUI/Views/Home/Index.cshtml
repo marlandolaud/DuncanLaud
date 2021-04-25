@@ -1,0 +1,124 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <base href="/" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <title>DuncanLaud.com</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="morning dew is a collection of verses and poems born from the author's life experiences. her poetry encompasses a myriad of emotions that will resonate with any reader." />
+    <meta name="author" content="marlando laud" />
+    <meta name="keywords" content="c.a. duncan-laud, duncanlaud, christine laud, christine , laud, morning dew , morning, dew, book, poetry, reading, teacher, duncan, jamaica, midearja" />
+    <meta http-equiv="expires" content="-1">
+    <meta http-equiv="pragma" content="no-cache">
+    <link href="~/css/site.css" rel="stylesheet" />
+    <link href="~/lib/twitter-bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/lib/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+    <link rel="shortcut icon" href="~/favicon.ico">
+    <script src="~/lib/jquery/jquery.min.js"></script>
+</head>
+<body ng-app="ngDuncanLaud">
+
+    <div id="main" ng-controller="MainController">
+
+        <div class="navbar navbar-inverse navbar-fixed-top navbar-transparent" role="navigation">
+            <div class="container">
+                <div class="navbar-header">
+                    <a class="navbar-brand" href="#Home">
+                        <span class="glyphicon glyphicon-apple"></span>
+                        <span ng-bind="title"></span>
+                    </a>
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                </div>
+                <div class="navbar-collapse navbar-right collapse" id="navbar-main">
+                    <ul class="nav navbar-nav">
+                        <li class="{{$location.path() == '/Home' ? 'active' : ''}}"><a href="#Home">Home</a></li>
+                        <li class="{{$location.path() == '/About' ? 'active' : ''}}"><a href="#About">About</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="splash">
+            <div class="container">
+
+                <div class="row">
+                    <div class="col-lg-12">
+                        <h1 class="main-title" ng-bind="title"></h1>
+                        <div id="social">
+                            <span>
+                                <a class="btn btn-primary btn-xs" ng-href="{{faceBookURL}}">
+                                    <span class="fa fa-facebook-square"></span>
+                                    <span>facebook</span>
+                                </a>
+                            </span>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <noscript><div class="alert alert-danger">Please enable javascript to view this website properly</div></noscript>
+        <!--[if lt IE 9]><div class="alert alert-danger">Please use a modern browser (<a href="https://www.google.com/chrome/">chrome</a>, <a href="https://www.mozilla.org/en-US/firefox/products/">firefox</a>) to view this website properly</div><![endif]-->
+
+        <div class="container">
+            <div class="ribbon-wrapper-green"><div class="ribbon-green">Site Under Construction</div></div>
+
+            <div class="row">
+
+
+                <div class="col-xs-12 col-sm-8 col-sm-push-4 col-md-9 col-md-push-3">
+                    <div id="alertbox1" class="alert alert-warning" style="display:none;">
+                        <button type="button" class="close" data-dismiss="alert">×</button>
+                        <strong>Dont forget!</strong> you can get a copy of any of C.A Duncan-Laud's latest work at&nbsp;
+                        <a href="https://www.amazon.com/s/ref=ntt_athr_dp_sr_1/181-2280282-6857411/181-2280282-6857411?_encoding=UTF8&field-author=C%20A%20Duncan-Laud&ie=UTF8&search-alias=books&sort=relevancerank">Amazon.com</a>
+                    </div>
+
+                    <div ng-view></div>
+
+                    <!--<pre>$location.path() = {{$location.path()}}</pre>-->
+                    <!--<pre>$route.current.templateUrl = {{$route.current.templateUrl}}</pre>-->
+                    <!--<pre>$route.current.params = {{$route.current.params}}</pre>-->
+                    <!--<pre>$route.current.scope.name = {{$route.current.scope.name}}</pre>-->
+                    <!--<pre>$routeParams = {{$routeParams}}</pre>-->
+
+                </div>
+
+                <div class="col-xs-12 col-sm-4 col-sm-pull-8 col-md-3 col-md-pull-9">
+                    <div class="well sidebar-nav ">
+                        <books></books>
+                    </div>
+                </div>
+
+            </div>
+            <hr>
+            <footer>
+                <p id="yeartag" align="center"></p>
+            </footer>
+        </div>
+    </div>
+
+    <!--scripts-->
+    <script src="~/lib/angular.js/angular.min.js"></script>
+    <script src="~/lib/angular.js/angular-sanitize.min.js"></script>
+    <script src="~/lib/angular.js/angular-route.min.js"></script>
+    <script src="~/js/ngStorage.min.js"></script>
+    <script src="~/js/app.js"></script>
+    <script src="~/lib/twitter-bootstrap/js/bootstrap.min.js"></script>
+    <script src="~/js/index.js"></script>
+</body>
+</html>

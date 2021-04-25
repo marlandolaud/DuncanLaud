@@ -1,0 +1,18 @@
+﻿<div class="content-body">
+    <div ng-repeat="article in articles" class="content-body">
+        <div class="media">
+            <div ng-if="article.imgURL == ''" class="media-left">
+                <a href="#About">
+                    <img alt="placeholder" class="media-object" src="img/avatar.jpg" style="width: 64px; height: 64px;">
+                </a>
+            </div>
+            <div ng-if="article.imgURL != ''" class="media-left">                
+                <img alt="image" class="media-object" ng-src="{{article.imgURL}}" style="width: 64px; height: 64px;">
+            </div>
+            <div class="media-body">
+                <h4 ng-bind="article.heading" class="media-heading">Media heading</h4>
+                <span ng-bind-html="article.htmlBody"></span>
+            </div>
+        </div>
+    </div>
+</div>
