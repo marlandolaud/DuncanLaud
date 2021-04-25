@@ -1,6 +1,6 @@
 ﻿<div class="content-body" ng-if="results.length > 0">
 
-    <div ng-repeat="result in results">
+    <div ng-repeat="result in results track by $id">
 
         <div class="row">
             <div class="col-md-12">
@@ -42,13 +42,7 @@
                         <span>Language:</span>
                         <span>{{result.Language}}</span>
                     </div>
-                    <div>
-                        <span>Product Dimensions:</span>
-                        <span ng-repeat="x in result.ProductDimensionsInches">
-                            <span>{{x}}</span>
-                            <span>{{$last ? '"' : '" x '}}</span>
-                        </span>
-                    </div> 
+                     
                     <div>
                         <span>Shipping Weight</span>
                         <span>{{result.ShippingWeightOunces}}</span>

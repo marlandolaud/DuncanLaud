@@ -1,5 +1,5 @@
 ﻿<div class="content-body">
-    <div ng-repeat="article in articles" class="content-body">
+    <div ng-repeat="article in articles track by $id" class="content-body">
         <div class="media">
             <div ng-if="article.imgURL == ''" class="media-left">
                 <a href="#About">
