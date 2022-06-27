@@ -5,13 +5,22 @@
             <h4 style="margin-left:20px;" ng-bind="book.Name"></h4>
         </li>
         <li>
-            <a href="#Book/{{book.ISBN10}}">
-                <img class="tips" ng-src="{{book.ThumbnailURL}}" data-placement="right" data-html="true" data-delay="500" data-animation="true"/>
+            <a href="#Book/{{book.ISBN10}}" class="scroll-page">
+                <img class="tips" 
+                     ng-src="{{book.ThumbnailURL}}" 
+                     data-placement="right" 
+                     data-html="true" 
+                     data-delay="500" 
+                     data-animation="true"/>
             </a>
         </li>
         <li ng-if="book.AmazonId > 0">
             <a ng-href="{{book.PurchaseURL}}">
-                <img src="https://www.paypalobjects.com/en_US/i/btn/btn_buynowCC_LG.gif" alt="PayPal - The safer, easier way to pay online!" width="171" height="47" border="0" />
+                <img src="https://www.paypalobjects.com/en_US/i/btn/btn_buynowCC_LG.gif" 
+                     alt="PayPal - The safer, easier way to pay online!" 
+                     width="171" 
+                     height="47" 
+                     border="0" />
             </a>
         </li>
     </ng-repeat>

@@ -44,7 +44,7 @@ mod.factory('bookListFactory', function ($sce) {
             BookImageURL2: 'img/fingersPawsLarge2.jpg',
             Details: "",
             AmazonId: 1542982138,
-            PurchaseURL: $sce.trustAsResourceUrl('https://www.amazon.com/gp/product/1542982138'),
+            PurchaseURL: $sce.trustAsResourceUrl('https://www.barnesandnoble.com/w/fingers-and-paws-christine-laud/1140803680?ean=9781649613363'),
             DescriptionHeading: 'Fingers and Paws: And Other Poems For The Active Mind',
             DescriptionHtmlBody: $sce.trustAsHtml('Fingers and Paws and Other Poems for the Active Minds is a collection of poems all written from a child\'s perspective. These poems cover a variety of topics that will naturally spark a conversation with any child.')
 
@@ -67,7 +67,7 @@ mod.factory('bookListFactory', function ($sce) {
             BookImageURL2: '',
             Details: "<ul class='nav nav-list'><li><b>Author: </b>C.A. Duncan-Laud</li><li><b>Softcover/Hardcover: </b>68 pages</li><li><b>Publisher: </b>Outskirts Press (January 5, 2012)</li><li><b>Language: </b>English</li><li><b>ISBN-10: </b>1432775944</li><li><b>ISBN-13: </b>978-1432775940</li><li><b>Product Dimensions: </b>8.6 x 5.7 x 0.6 inches</li><li><b>Shipping Weight:</b> 8.8 ounces</li><li><b> Suggested Retail Price: </b><br /> $11.95 (Softcover)<br /> $19.95 (Hardcover)</li></ul>",
             AmazonId: 1432775456,
-            PurchaseURL: $sce.trustAsResourceUrl('https://www.amazon.com/gp/product/1432775456'),
+            PurchaseURL: $sce.trustAsResourceUrl('https://www.amazon.com/404'),
             DescriptionHeading: 'THE WAGGING TONGUE HAS NO BONE',
             DescriptionHtmlBody: $sce.trustAsHtml('Morning Dew is a collection of verses and poems born from the Author\'s life experiences. Her poetry encompasses a myriad of emotions that will resonate with any reader.<em>"My writing was initially influenced by sadness and betrayal, which made me feel forlorn, and I was forced to change my tune for my mental health. When I started focusing on the many blessings in my life, I recognized the joy and beauty in everyday life-so now I write about love, nature, faith and hope. It doesn\'t take the hurt away, but it takes the sting out of living." </em> Inspired by God\'s promise that "I will never leave thee comfortless," these poems reflect the melody in the heart when the soul comes alive with hope and gratitude. If you find refuge in the pages of a good book, Morning Dew will be a sanctuary for your reading pleasure.')
 

@@ -15,4 +15,8 @@
     $('a[href="#"]').click(function (e) {
         e.preventDefault();
     });
+
+    $('.scroll-page').click(function () {
+        document.body.scrollTop = document.documentElement.scrollTop = 0;
+    });
 });
