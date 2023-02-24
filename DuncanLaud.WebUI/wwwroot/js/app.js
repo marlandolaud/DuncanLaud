@@ -27,7 +27,31 @@ mod.directive("books", function () {
 mod.factory('bookListFactory', function ($sce) {
     var list = [
         {
-            id: 1,
+            id: 3,
+            UrlSlug: 'more_than_rhymes',
+            ISBN10: '1',
+            ISBN13: '0',
+            Name: 'More Than Rhymes',
+            Pages: 0,
+            Publisher: '',
+            publishDate: '2023-02-24T00:00:00.000Z',
+            Language: 'English',
+            ProductDimensionsInches: [0, 0, 0],
+            ShippingWeightOunces: 0,
+            SuggestedRetailPriceUSD: [14.99],
+            Author: 'C.A. Duncan-Laud',
+            ThumbnailURL: 'img/MoreThanRhymesSmall.jpg',
+            BookImageURL: 'img/MoreThanRhymes1.jpg',
+            BookImageURL2: 'img/MoreThanRhymes2.jpg',
+            Details: "",
+            AmazonId: 0,
+            PurchaseURL: $sce.trustAsResourceUrl('https://www.amazon.com/dp/B0BWS7F8B7'),
+            DescriptionHeading: 'Captivating Collection of Educational and Entertaining Poems',
+            DescriptionHtmlBody: $sce.trustAsHtml('"More than Rhymes" is a captivating collection of poetry that skillfully intertwines real-world connections with lyrical language. Each poem offers an engaging blend of education and entertainment, making it a perfect read for all ages. From exploring historical events to celebrating the wonders of nature, this collection is brimming with rich vocabulary and stunning imagery that will leave you mesmerized. So dive into this book and discover the beauty and power of poetry like never before!')
+
+        },
+        {
+            id: 4,
             UrlSlug: 'fingers_Paws',
             ISBN10: '1542982138',
             ISBN13: '978-1542982139',
@@ -51,7 +75,7 @@ mod.factory('bookListFactory', function ($sce) {
 
         },
         {
-            id: 2,
+            id: 1,
             UrlSlug: 'morning_dew',
             ISBN10: '1432775944',
             ISBN13: '978-1432775940',
@@ -72,30 +96,6 @@ mod.factory('bookListFactory', function ($sce) {
             PurchaseURL: $sce.trustAsResourceUrl('https://www.amazon.com/404'),
             DescriptionHeading: 'THE WAGGING TONGUE HAS NO BONE',
             DescriptionHtmlBody: $sce.trustAsHtml('Morning Dew is a collection of verses and poems born from the Author\'s life experiences. Her poetry encompasses a myriad of emotions that will resonate with any reader.<em>"My writing was initially influenced by sadness and betrayal, which made me feel forlorn, and I was forced to change my tune for my mental health. When I started focusing on the many blessings in my life, I recognized the joy and beauty in everyday life-so now I write about love, nature, faith and hope. It doesn\'t take the hurt away, but it takes the sting out of living." </em> Inspired by God\'s promise that "I will never leave thee comfortless," these poems reflect the melody in the heart when the soul comes alive with hope and gratitude. If you find refuge in the pages of a good book, Morning Dew will be a sanctuary for your reading pleasure.')
-
-        },
-        {
-            id: 3,
-            UrlSlug: 'more_than_rhymes',
-            ISBN10: '1',
-            ISBN13: '0',
-            Name: 'More Than Rhymes',
-            Pages: 0,
-            Publisher: '',
-            publishDate: '2023-02-24T00:00:00.000Z',
-            Language: 'English',
-            ProductDimensionsInches: [0, 0, 0],
-            ShippingWeightOunces: 0,
-            SuggestedRetailPriceUSD: [14.99],
-            Author: 'C.A. Duncan-Laud',
-            ThumbnailURL: 'img/MoreThanRhymesSmall.jpg',
-            BookImageURL: 'img/MoreThanRhymes1.jpg',
-            BookImageURL2: 'img/MoreThanRhymes2.jpg',
-            Details: "",
-            AmazonId: 0,
-            PurchaseURL: $sce.trustAsResourceUrl('https://www.amazon.com/dp/B0BWS7F8B7'),
-            DescriptionHeading: 'Captivating Collection of Educational and Entertaining Poems',
-            DescriptionHtmlBody: $sce.trustAsHtml('"More than Rhymes" is a captivating collection of poetry that skillfully intertwines real-world connections with lyrical language. Each poem offers an engaging blend of education and entertainment, making it a perfect read for all ages. From exploring historical events to celebrating the wonders of nature, this collection is brimming with rich vocabulary and stunning imagery that will leave you mesmerized. So dive into this book and discover the beauty and power of poetry like never before!')
 
         }
     ];
@@ -120,8 +120,8 @@ mod.controller('MainController', function ($scope, $sce, $route, $routeParams, $
         {
             id: 1,
             imgURL: '',
-            heading: 'THE WAGGING TONGUE HAS NO BONE',
-            htmlBody: $sce.trustAsHtml('Morning Dew is a collection of verses and poems born from the Author\'s life experiences. Her poetry encompasses a myriad of emotions that will resonate with any reader.<em>"My writing was initially influenced by sadness and betrayal, which made me feel forlorn, and I was forced to change my tune for my mental health. When I started focusing on the many blessings in my life, I recognized the joy and beauty in everyday life-so now I write about love, nature, faith and hope. It doesn\'t take the hurt away, but it takes the sting out of living." </em> Inspired by God\'s promise that "I will never leave thee comfortless," these poems reflect the melody in the heart when the soul comes alive with hope and gratitude. If you find refuge in the pages of a good book, Morning Dew will be a sanctuary for your reading pleasure.')
+            heading: '',
+            htmlBody: $sce.trustAsHtml('Welcome to my website! My name is Christine Duncan-Laud, I am a passionate writer who loves to explore the world of poetry. Through my books, I aim to share the beauty and power of poetry with readers of all ages. Whether you are a poetry lover or just starting to explore this fascinating genre, I have something for everyone. So come on in, take a look around, and discover the magic of poetry with me!')
         }
     ];
 });
