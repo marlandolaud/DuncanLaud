@@ -14,7 +14,7 @@
                      data-animation="true"/>
             </a>
         </li>
-        <li ng-if="book.AmazonId > 0">
+        <li ng-if="book.AmazonId != ''">
             <a ng-href="{{book.PurchaseURL}}">
                 <img src="https://www.paypalobjects.com/en_US/i/btn/btn_buynowCC_LG.gif" 
                      alt="PayPal - The safer, easier way to pay online!" 

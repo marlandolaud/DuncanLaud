@@ -44,7 +44,7 @@ mod.factory('bookListFactory', function ($sce) {
             BookImageURL: 'img/MoreThanRhymes1.jpg',
             BookImageURL2: 'img/MoreThanRhymes2.jpg',
             Details: "",
-            AmazonId: 0,
+            AmazonId: 'B0BWS7F8B7',
             PurchaseURL: $sce.trustAsResourceUrl('https://www.amazon.com/dp/B0BWS7F8B7'),
             DescriptionHeading: 'Captivating Collection of Educational and Entertaining Poems',
             DescriptionHtmlBody: $sce.trustAsHtml('"More than Rhymes" is a captivating collection of poetry that skillfully intertwines real-world connections with lyrical language. Each poem offers an engaging blend of education and entertainment, making it a perfect read for all ages. From exploring historical events to celebrating the wonders of nature, this collection is brimming with rich vocabulary and stunning imagery that will leave you mesmerized. So dive into this book and discover the beauty and power of poetry like never before!')
@@ -68,7 +68,7 @@ mod.factory('bookListFactory', function ($sce) {
             BookImageURL: 'img/fingersPawsLarge.jpg',
             BookImageURL2: 'img/fingersPawsLarge2.jpg',
             Details: "",
-            AmazonId: 1542982138,
+            AmazonId: '1542982138',
             PurchaseURL: $sce.trustAsResourceUrl('https://www.barnesandnoble.com/w/fingers-and-paws-christine-laud/1140803680?ean=9781649613363'),
             DescriptionHeading: 'Fingers and Paws: And Other Poems For The Active Mind',
             DescriptionHtmlBody: $sce.trustAsHtml('Fingers and Paws and Other Poems for the Active Minds is a collection of poems all written from a child\'s perspective. These poems cover a variety of topics that will naturally spark a conversation with any child.')
@@ -92,7 +92,7 @@ mod.factory('bookListFactory', function ($sce) {
             BookImageURL: 'img/bookLarge.jpg',
             BookImageURL2: '',
             Details: "",
-            AmazonId: 1432775456,
+            AmazonId: '',
             PurchaseURL: $sce.trustAsResourceUrl('https://www.amazon.com/404'),
             DescriptionHeading: 'THE WAGGING TONGUE HAS NO BONE',
             DescriptionHtmlBody: $sce.trustAsHtml('Morning Dew is a collection of verses and poems born from the Author\'s life experiences. Her poetry encompasses a myriad of emotions that will resonate with any reader.<em>"My writing was initially influenced by sadness and betrayal, which made me feel forlorn, and I was forced to change my tune for my mental health. When I started focusing on the many blessings in my life, I recognized the joy and beauty in everyday life-so now I write about love, nature, faith and hope. It doesn\'t take the hurt away, but it takes the sting out of living." </em> Inspired by God\'s promise that "I will never leave thee comfortless," these poems reflect the melody in the heart when the soul comes alive with hope and gratitude. If you find refuge in the pages of a good book, Morning Dew will be a sanctuary for your reading pleasure.')
