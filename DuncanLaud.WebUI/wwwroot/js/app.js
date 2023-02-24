@@ -79,7 +79,7 @@ mod.factory('bookListFactory', function ($sce) {
             UrlSlug: 'more_than_rhymes',
             ISBN10: '1',
             ISBN13: '0',
-            Name: 'More Than RhymeS',
+            Name: 'More Than Rhymes',
             Pages: 0,
             Publisher: '',
             publishDate: '2023-02-24T00:00:00.000Z',
@@ -94,8 +94,8 @@ mod.factory('bookListFactory', function ($sce) {
             Details: "",
             AmazonId: 0,
             PurchaseURL: $sce.trustAsResourceUrl('https://www.amazon.com/dp/B0BWS7F8B7'),
-            DescriptionHeading: '',
-            DescriptionHtmlBody: $sce.trustAsHtml('')
+            DescriptionHeading: 'Captivating Collection of Educational and Entertaining Poems',
+            DescriptionHtmlBody: $sce.trustAsHtml('"More than Rhymes" is a captivating collection of poetry that skillfully intertwines real-world connections with lyrical language. Each poem offers an engaging blend of education and entertainment, making it a perfect read for all ages. From exploring historical events to celebrating the wonders of nature, this collection is brimming with rich vocabulary and stunning imagery that will leave you mesmerized. So dive into this book and discover the beauty and power of poetry like never before!')
 
         }
     ];
@@ -111,7 +111,7 @@ mod.controller('MainController', function ($scope, $sce, $route, $routeParams, $
 
     $scope.title = 'DuncanLaud.com';
     $scope.artistName = 'Christine Duncan-Laud';
-    $scope.aritistBio = 'was born in Jamaica West Indies. After graduating from the Moneague Teachers College in St Ann, she taught for several years in St. Mary and St. Catherine before migrating to the US in 1991, where she earned a BA in Elementary Education at Florida Atlantic University. Christine is  currently employed as a teacher in Ft Lauderdale, Florida. She has written plays for different churches, schools and other social events.';
+    $scope.aritistBio = 'Christine, a talented author, was born in the beautiful island of Jamaica, West Indies. After graduating from the Moneague Teachers\' College, she spent several years teaching in St.Mary and St.Catherine before immigrating to the US in 1991 to pursue her passion for education.She went on to earn a BA in Elementary Education from Florida Atlantic University and is currently employed as a teacher in Ft Lauderdale, Florida.In addition to her teaching career, Christine has also written captivating plays for various churches, schools, and social events, showcasing her creative and versatile writing skills.'
     $scope.emailAddress = 'christine@duncanlaud.com'
     $scope.artistImageUrl = 'img/author263x400.jpg';
     $scope.faceBookURL = 'https://www.facebook.com/christine.duncanlaud';
