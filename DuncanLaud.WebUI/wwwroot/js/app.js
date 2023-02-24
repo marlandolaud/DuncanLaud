@@ -28,6 +28,7 @@ mod.factory('bookListFactory', function ($sce) {
     var list = [
         {
             id: 1,
+            UrlSlug: 'fingers_Paws',
             ISBN10: '1542982138',
             ISBN13: '978-1542982139',
             Name: 'Fingers And Paws',
@@ -51,6 +52,7 @@ mod.factory('bookListFactory', function ($sce) {
         },
         {
             id: 2,
+            UrlSlug: 'morning_dew',
             ISBN10: '1432775944',
             ISBN13: '978-1432775940',
             Name: 'Morning Dew',
@@ -65,7 +67,7 @@ mod.factory('bookListFactory', function ($sce) {
             ThumbnailURL: 'img/bookSmall.jpg',
             BookImageURL: 'img/bookLarge.jpg',
             BookImageURL2: '',
-            Details: "<ul class='nav nav-list'><li><b>Author: </b>C.A. Duncan-Laud</li><li><b>Softcover/Hardcover: </b>68 pages</li><li><b>Publisher: </b>Outskirts Press (January 5, 2012)</li><li><b>Language: </b>English</li><li><b>ISBN-10: </b>1432775944</li><li><b>ISBN-13: </b>978-1432775940</li><li><b>Product Dimensions: </b>8.6 x 5.7 x 0.6 inches</li><li><b>Shipping Weight:</b> 8.8 ounces</li><li><b> Suggested Retail Price: </b><br /> $11.95 (Softcover)<br /> $19.95 (Hardcover)</li></ul>",
+            Details: "",
             AmazonId: 1432775456,
             PurchaseURL: $sce.trustAsResourceUrl('https://www.amazon.com/404'),
             DescriptionHeading: 'THE WAGGING TONGUE HAS NO BONE',
@@ -74,23 +76,24 @@ mod.factory('bookListFactory', function ($sce) {
         },
         {
             id: 3,
-            ISBN10: '0',
+            UrlSlug: 'more_than_rhymes',
+            ISBN10: '1',
             ISBN13: '0',
             Name: 'More Than RhymeS',
             Pages: 0,
             Publisher: '',
-            publishDate: '2017-01-01T00:00:00.000Z',
+            publishDate: '2023-02-24T00:00:00.000Z',
             Language: 'English',
             ProductDimensionsInches: [0, 0, 0],
             ShippingWeightOunces: 0,
-            SuggestedRetailPriceUSD: [0.00, 0.00],
+            SuggestedRetailPriceUSD: [14.99],
             Author: 'C.A. Duncan-Laud',
-            ThumbnailURL: 'img/CaDuncanlaud.png',
-            BookImageURL: 'img/CaDuncanlaud.png',
-            BookImageURL2: '',
-            Details: "In Progress",
+            ThumbnailURL: 'img/MoreThanRhymesSmall.jpg',
+            BookImageURL: 'img/MoreThanRhymes1.jpg',
+            BookImageURL2: 'img/MoreThanRhymes2.jpg',
+            Details: "",
             AmazonId: 0,
-            PurchaseURL: $sce.trustAsResourceUrl('https://www.amazon.com/gp/product/'),
+            PurchaseURL: $sce.trustAsResourceUrl('https://www.amazon.com/dp/B0BWS7F8B7'),
             DescriptionHeading: '',
             DescriptionHtmlBody: $sce.trustAsHtml('')
 
@@ -130,7 +133,7 @@ mod.controller('BookController', function ($scope, $routeParams, bookListFactory
     $scope.results = [];
     var _books = bookListFactory;
     for (var i = 0; i < _books.length; i++) {
-        if (_books[i].ISBN10 == $routeParams.bookId) {
+        if (_books[i].UrlSlug == $routeParams.bookId) {
             $scope.results.push(_books[i]);
         }
     }

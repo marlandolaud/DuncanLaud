@@ -5,7 +5,6 @@
         <div class="row">
             <div class="col-md-12">
                 <h1>{{result.Name}}</h1>
-                <h2 ng-if="result.ISBN10 <= 0">Coming Soon!</h2>
             </div>
         </div>
         <div class="row">
@@ -27,35 +26,10 @@
                         <span>Author:</span>
                         <span>{{result.Author}}</span>
                     </div>
-                    <div>
-                        <span>ISBN-10:</span>
-                        <span>{{result.ISBN10}}</span>
-                    </div>
-                    <div>
-                        <span>ISBN-13:</span>
-                        <span>{{result.ISBN13}}</span>
-                    </div>
-                    <div>
-                        <span>Pages:</span>
-                        <span>{{result.Pages}}</span>
-                    </div>
-                    <div>
-                        <span>Publisher:</span>
-                        <span>{{result.Publisher}}</span>
-                    </div>
+                   
                     <div>
                         <span>Published:</span>
                         <span>{{result.publishDate | date: 'MMMM yyyy'}}</span>
-                    </div>
-                    <div>
-                        <span>Language:</span>
-                        <span>{{result.Language}}</span>
-                    </div>
-
-                    <div>
-                        <span>Shipping Weight</span>
-                        <span>{{result.ShippingWeightOunces}}</span>
-                        <span class="sub">oz</span>
                     </div>
                     <div>
                         <span>Suggested Retail Price:</span>
