@@ -44,4 +44,4 @@ jobs:
       id: build_solution
       shell: pwsh
       run: |
-        msbuild .\DuncanLaud.WebUI.sln
+        msbuild .\DuncanLaud.WebUI.sln -p:Configuration=Release
