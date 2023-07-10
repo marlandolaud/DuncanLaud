@@ -1,0 +1,24 @@
+on:
+  push:
+    branches:
+      - master
+name: 🚀 Deploy website on push
+jobs:
+  web-deploy:
+    name: 🎉 Deploy
+    runs-on: ubuntu-latest
+    steps:
+    - name: 🚚 Get latest code
+      uses: actions/checkout@v3
+    
+    - name: 📂 Sync files
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+      with:
+        server: https://win5025.site4now.net:8172/msdeploy.axd?site=developerlando-001-site1
+        port: 8172
+        username: ${{ secrets.ftp_username }}
+        password: ${{ secrets.ftp_password }}
+        dry-run: true
+        exclude: |
+          **/.git*
+          **/.git*/**
