@@ -20,7 +20,7 @@ jobs:
         run: dotnet build --configuration Release --no-restore
 
       - name: Publish
-        run: dotnet publish DuncanLaud.WebUI/DuncanLaud.WebUI.csproj --configuration Release --framework net6 --output ./publish --runtime win-x86 --self-contained true -p:PublishTrimmed=false -p:PublishSingleFile=false
+        run: dotnet publish DuncanLaud.WebUI/DuncanLaud.WebUI.csproj --configuration Release --framework net6.0 --output ./publish --runtime win-x86 --self-contained true -p:PublishTrimmed=false -p:PublishSingleFile=false
 
       - name: Test with .NET
         run: dotnet test
