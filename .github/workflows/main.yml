@@ -32,4 +32,4 @@ jobs:
           server-computer-name: ${{ secrets.SERVER_COMPUTER_NAME }}
           server-username: ${{ secrets.ftp_username }}
           server-password: ${{ secrets.ftp_password }}
-          target-path: '/duncan-prod/'
+          target-path: '/stage/'
