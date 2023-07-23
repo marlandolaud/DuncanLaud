@@ -111,7 +111,7 @@ mod.controller('MainController', function ($scope, $sce, $route, $routeParams, $
 
     $scope.title = 'DuncanLaud.com';
     $scope.artistName = 'Christine Duncan-Laud';
-    $scope.aritistBio = 'Christine, a talented author, was born in the beautiful island of Jamaica, West Indies. After graduating from the Moneague Teachers\' College, she spent several years teaching in St.Mary and St.Catherine before immigrating to the US in 1991 to pursue her passion for education.She went on to earn a BA in Elementary Education from Florida Atlantic University and is currently employed as a teacher in Ft Lauderdale, Florida.In addition to her teaching career, Christine has also written captivating plays for various churches, schools, and social events, showcasing her creative and versatile writing skills.'
+    $scope.aritistBio = 'nos te it sum: test test test'
     $scope.emailAddress = 'christine@duncanlaud.com'
     $scope.artistImageUrl = 'img/author263x400.jpg';
     $scope.faceBookURL = 'https://www.facebook.com/christine.duncanlaud';
