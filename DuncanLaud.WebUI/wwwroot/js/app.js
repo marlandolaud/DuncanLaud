@@ -111,7 +111,7 @@ mod.controller('MainController', function ($scope, $sce, $route, $routeParams, $
 
     $scope.title = 'DuncanLaud.com';
     $scope.artistName = 'Christine Duncan-Laud';
-    $scope.aritistBio = '------------------------------------------------------------------------------------------'
+    $scope.aritistBio = '@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@'
     $scope.emailAddress = 'christine@duncanlaud.com'
     $scope.artistImageUrl = 'img/author263x400.jpg';
     $scope.faceBookURL = 'https://www.facebook.com/christine.duncanlaud';
