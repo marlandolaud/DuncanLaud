@@ -1,15 +1,14 @@
 ﻿<div class="content-body">
-    <div ng-repeat="article in articles track by $id" class="content-body">
+    <div ng-repeat="article in articles" class="content-body">
+        <h1 ng-bind="article.heading" class="media-heading">Media heading</h1>
         <div class="media">
             <div ng-if="article.imgURL == ''">
-                <a href="#About">
                     <img alt="placeholder" class="media-object" src="img/avatar.jpg">
-                </a>
             </div>
-            <div class="media-body">
-                <h4 ng-bind="article.heading" class="media-heading">Media heading</h4>
-                <span ng-bind-html="article.htmlBody"></span>
+            <div ng-if="article.imgURL != ''">
+                <img alt="placeholder" class="media-object" ng-src="{{article.imgURL}}" style='height: 100%; width: 100%; object-fit: contain'>
             </div>
+            <span ng-bind-html="article.htmlBody"></span>
         </div>
     </div>
 </div>
