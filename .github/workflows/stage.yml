@@ -1,4 +1,4 @@
-name: Deploy to FTP Server
+name: Deploy to FTP Server Stage
 on:
   pull_request:
     types: [opened, reopened]
@@ -8,8 +8,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
-      - name: Update
-        run: sudo apt-get update
+      - name: Upgrade & Update
+        run: sudo apt-get update && sudo apt-get upgrade
         
       - name: Install FTP client
         run: sudo apt-get install -y lftp
@@ -31,8 +31,11 @@ jobs:
       - name: Deploy via FTP
         run: |
           lftp -c "set ftp:ssl-allow no;
+                   set ftp:passive-mode on;
+                   set net:timeout 10;
+                   set net:max-retries 2;
                    open -u $FTP_USERNAME,$FTP_PASSWORD $FTP_SERVER;
-                   mirror --parallel=10 -R --verbose ./publish /" || true
+                   mirror --parallel=10 -R --verbose ./publish /"
         env:
           FTP_USERNAME: ${{ secrets.STAGE_USERNAME }}
           FTP_PASSWORD: ${{ secrets.STAGE_PASSWORD }}

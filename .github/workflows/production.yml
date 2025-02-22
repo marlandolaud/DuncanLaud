@@ -1,4 +1,4 @@
-name: Deploy to FTP Server
+name: Deploy to FTP Server Production
 on:
   push:
     branches:
@@ -10,9 +10,6 @@ jobs:
 
       - name: Upgrade & Update
         run: sudo apt-get update
-
-      - name: Upgrade & Update
-        run: sudo apt-get upgrade
 
       - name: Install FTP client
         run: sudo apt-get install -y lftp

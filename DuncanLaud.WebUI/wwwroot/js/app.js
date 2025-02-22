@@ -27,6 +27,30 @@ mod.directive("books", function () {
 mod.factory('bookListFactory', function ($sce) {
     var list = [
         {
+            id: 4,
+            UrlSlug: 'wings_of_hope',
+            ISBN10: '1',
+            ISBN13: '0',
+            Name: 'Wings of Hope',
+            Pages: 0,
+            Publisher: '',
+            publishDate: '2025-02-24T00:00:00.000Z',
+            Language: 'English',
+            ProductDimensionsInches: [0, 0, 0],
+            ShippingWeightOunces: 0,
+            SuggestedRetailPriceUSD: ['TBD'], // fill in when book is on amazon
+            Author: 'C.A. Duncan-Laud',
+            ThumbnailURL: 'img/WingsofHopeSmall.jpg',
+            BookImageURL: 'img/WingsofHope.jpg',
+            BookImageURL2: '',
+            Details: "",
+            AmazonId: 'TBD', // fill in when book is on amazon
+            PurchaseURL: $sce.trustAsResourceUrl(''), // fill in when book is on amazon
+            DescriptionHeading: 'Poems and Verses that comfort, inspire, encourage, and challenge: for every season of life, in any state of mind',
+            DescriptionHtmlBody: $sce.trustAsHtml('<p data-placeholder="Type or paste your content here!" style="line-height:1.2;margin-bottom:0pt;margin-top:0pt;" dir="ltr" id="docs-internal-guid-3d6d6630-7fff-339c-b4a3-d0c272f19ccf">On Wings of Hope is a collection of poems and verses based on real life experiences. This body of work encompasses a myriad of experiences and emotions that will resonate with any reader.</p><p style="line-height:1.2;margin-bottom:0pt;margin-top:0pt;" dir="ltr">“I write for my mental and spiritual health. When I focus on my blessings, I realize the joy and beauty in everyday life – so I write about matters of the heart such as love, loss, faith, friendship, struggles, and triumph anchored in hope. These themes keep me centered and fill my life with peace and joy, even when life’s circumstances dictate otherwise.</p><p style="line-height:1.2;margin-bottom:0pt;margin-top:0pt;" dir="ltr"><br data-cke-filler="true"></p><p style="line-height:1.2;margin-bottom:0pt;margin-top:0pt;" dir="ltr">Inspired by this assurance from God’s words, “We have hope as an anchor for the soul, firm and secure…” These poems reflect the melody in the heart when the soul comes alive with hope and gratitude.&nbsp;</p><p>If you find refuge in the pages of a good book,&nbsp;On Wings of Hope will be a sanctuary for your reading pleasure.</p>')
+
+        },
+        {
             id: 3,
             UrlSlug: 'more_than_rhymes',
             ISBN10: '1',
@@ -121,7 +145,19 @@ mod.controller('MainController', function ($scope, $sce, $route, $routeParams, $
             id: 1,
             imgURL: '',
             heading: '',
-            htmlBody: $sce.trustAsHtml('Welcome to my website! My name is Christine Duncan-Laud, I am a passionate writer who loves to explore the world of poetry. Through my books, I aim to share the beauty and power of poetry with readers of all ages. Whether you are a poetry lover or just starting to explore this fascinating genre, I have something for everyone. So come on in, take a look around, and discover the magic of poetry with me!')
+            htmlBody: $sce.trustAsHtml('<p data-placeholder="Type or paste your content here!"><span style="background-color:transparent;color:#000000;font-family:Calibri,sans-serif;font-size:12pt;"><span class="ng-binding" style="font-style:normal;font-variant:normal;font-weight:400;text-decoration:none;vertical-align:baseline;white-space:pre-wrap;" ng-bind-html="article.htmlBody">Hi there! I\'m Christine Duncan - Laud, a writer who’s absolutely passionate about the world of poetry. I believe poetry is a magical way to express feelings, tell stories, and discover new ideas. Through my books, I aim to share the beauty and power of poetry with readers of all ages. Whether you are a poetry lover or just starting to explore this fascinating genre, I have something for everyone. So come on in, take a look around, and let\'s discover the magic of poetry together!</span></span></p>')
+        },       
+         {
+            id: 2,
+            imgURL: 'img/W2K-On Wings of Hope-3D Book Mockup-2.png',
+             heading: 'Poems and Verses that comfort, inspire, encourage, and challenge: for every season of life, in any state of mind',
+             htmlBody: $sce.trustAsHtml('<p data-placeholder="Type or paste your content here!"><span data-ck-unsafe-element="meta" charset="utf-8"></span></p><p style="line-height:1.2;margin-bottom:0pt;margin-top:0pt;" dir="ltr" id="docs-internal-guid-3d6d6630-7fff-339c-b4a3-d0c272f19ccf"><span style="background-color:transparent;color:#000000;font-family:Calibri,sans-serif;font-size:12pt;"><span style="font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre-wrap;"><strong>On Wings of Hope</strong></span><span style="font-style:normal;font-variant:normal;font-weight:400;text-decoration:none;vertical-align:baseline;white-space:pre-wrap;"> is a collection of poems and verses based on real life experiences. This body of work encompasses a myriad of experiences and emotions that will resonate with any reader.</span></span></p><p style="line-height:1.2;margin-bottom:0pt;margin-top:0pt;" dir="ltr"><span style="background-color:transparent;color:#000000;font-family:Calibri,sans-serif;font-size:12pt;"><span style="font-style:normal;font-variant:normal;font-weight:400;text-decoration:none;vertical-align:baseline;white-space:pre-wrap;">“I write for my mental and spiritual health. When I focus on my blessings, I realize the joy and beauty in everyday life – so I write about matters of the heart such as love, loss, faith, friendship, struggles, and triumph anchored in hope. These themes keep me centered and fill my life with peace and joy, even when life’s circumstances dictate otherwise.</span></span></p><p><br data-cke-filler="true"></p><p style="line-height:1.2;margin-bottom:0pt;margin-top:0pt;" dir="ltr"><span style="background-color:transparent;color:#000000;font-family:Calibri,sans-serif;font-size:12pt;"><span style="font-style:normal;font-variant:normal;font-weight:400;text-decoration:none;vertical-align:baseline;white-space:pre-wrap;">Inspired by this assurance from God’s words, “We have hope as an anchor for the soul, firm and secure…” These poems reflect the melody in the heart when the soul comes alive with hope and gratitude.&nbsp;</span></span></p><p><span style="background-color:transparent;color:#000000;font-family:Calibri,sans-serif;font-size:12pt;"><span style="font-style:normal;font-variant:normal;font-weight:400;text-decoration:none;vertical-align:baseline;white-space:pre-wrap;">If you find refuge in the pages of a good book,&nbsp;</span><span style="font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre-wrap;"><strong>On Wings of Hope</strong></span><span style="font-style:normal;font-variant:normal;font-weight:400;text-decoration:none;vertical-align:baseline;white-space:pre-wrap;"> will be a sanctuary for your reading pleasure.</span></span></p>')
+        },
+          {
+            id: 3,
+            imgURL: 'img/W2K-More than Rhymes-3D Book Mockup-2-Rev1.png',
+            heading: 'More than Rhymes',
+              htmlBody: $sce.trustAsHtml('<p data-placeholder="Type or paste your content here!"><span style="background-color:transparent;color:#000000;font-family:Calibri,sans-serif;font-size:12pt;"><span class="ng-binding" style="font-style:normal;font-variant:normal;font-weight:400;text-decoration:none;vertical-align:baseline;white-space:pre-wrap;" ng-bind-html="article.htmlBody">More than Rhymes is a collection of poems with real world connections. These poems include topics such as self-awareness, mental health, family, historical events, patriotism, and interesting people. The poems are educational as well as entertaining and brimming with rich vocabulary.</span></span><br><br><span style="background-color:transparent;color:#000000;font-family:Calibri,sans-serif;font-size:12pt;"><span class="ng-binding" style="font-style:normal;font-variant:normal;font-weight:400;text-decoration:none;vertical-align:baseline;white-space:pre-wrap;" ng-bind-html="article.htmlBody">More than Rhymes also has a reference section which will help to enhance each reader\'s experience.</span ></span ></p > ')
         }
     ];
 });
