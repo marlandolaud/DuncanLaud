@@ -34,6 +34,7 @@ jobs:
                    set ftp:passive-mode on;
                    set net:timeout 10;
                    set net:max-retries 2;
+                   set log:enabled true;
                    open -u $FTP_USERNAME,$FTP_PASSWORD $FTP_SERVER;
                    mirror --parallel=10 -R --verbose ./publish /"
         env:
