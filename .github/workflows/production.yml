@@ -11,9 +11,6 @@ jobs:
       - name: Upgrade & Update
         run: sudo apt-get update
 
-      - name: Upgrade & Update
-        run: sudo apt-get upgrade
-
       - name: Install FTP client
         run: sudo apt-get install -y lftp
       
