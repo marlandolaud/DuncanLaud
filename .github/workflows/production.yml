@@ -31,6 +31,9 @@ jobs:
       - name: Deploy via FTP
         run: |
           lftp -c "set ftp:ssl-allow no;
+                   set net:timeout 600;
+                   set net:max-retries 3;
+                   set log:enabled true;
                    open -u $FTP_USERNAME,$FTP_PASSWORD $FTP_SERVER/duncan-prod;
                    mirror --parallel=10 -R --verbose ./publish /" || true
         env:
