@@ -1,4 +1,4 @@
-name: Deploy to FTP Server
+name: Deploy to FTP Server Production
 on:
   push:
     branches:
