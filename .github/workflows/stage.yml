@@ -1,5 +1,9 @@
 name: Deploy to FTP Server Stage
 on:
+  push:
+    branches:
+      - 'feature/**'
+
   pull_request:
     types: [opened, reopened]
     
@@ -31,7 +35,6 @@ jobs:
       - name: Deploy via FTP
         run: |
           lftp -c "set ftp:ssl-allow no;
-                   set ftp:passive-mode on;
                    set net:timeout 600;
                    set net:max-retries 2;
                    set log:enabled true;
