@@ -39,7 +39,7 @@ jobs:
                    set net:max-retries 2;
                    set log:enabled true;
                    open -u $FTP_USERNAME,$FTP_PASSWORD $FTP_SERVER/stage;
-                   mirror --parallel=10 -R --verbose ./publish /"
+                   mirror --parallel=10 -R --verbose ./publish /" || true
         env:
           FTP_USERNAME: ${{ secrets.STAGE_USERNAME }}
           FTP_PASSWORD: ${{ secrets.STAGE_PASSWORD }}
