@@ -31,7 +31,7 @@ jobs:
       - name: Deploy via FTP
         run: |
           lftp -c "set ftp:ssl-allow no;
-                   open -u $FTP_USERNAME,$FTP_PASSWORD $FTP_SERVER;
+                   open -u $FTP_USERNAME,$FTP_PASSWORD $FTP_SERVER/duncan-prod;
                    mirror --parallel=10 -R --verbose ./publish /" || true
         env:
           FTP_USERNAME: ${{ secrets.PROD_USERNAME }}

@@ -38,7 +38,7 @@ jobs:
                    set net:timeout 600;
                    set net:max-retries 2;
                    set log:enabled true;
-                   open -u $FTP_USERNAME,$FTP_PASSWORD $FTP_SERVER;
+                   open -u $FTP_USERNAME,$FTP_PASSWORD $FTP_SERVER/stage;
                    mirror --parallel=10 -R --verbose ./publish /"
         env:
           FTP_USERNAME: ${{ secrets.STAGE_USERNAME }}
