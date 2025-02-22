@@ -28,11 +28,18 @@ jobs:
       - name: Publish the application
         run: dotnet publish DuncanLaud.WebUI/DuncanLaud.WebUI.csproj --configuration Release --output ./publish --runtime win-x86 --self-contained false -p:PublishTrimmed=false -p:PublishSingleFile=false
 
-      - name: Deploy via FTP
+      - name: Deploy via FTP -> Configure SSL for FTP
         run: |
-          lftp -c "set ftp:ssl-allow no;
-                   open -u $FTP_USERNAME,$FTP_PASSWORD $FTP_SERVER;
-                   mirror --parallel=10 -R --verbose ./publish /" || true
+          lftp -c "set ftp:ssl-allow no" || true
+
+      - name: Deploy via FTP -> Open Connection
+        run: |
+          lftp -c "open -u $FTP_USERNAME,$FTP_PASSWORD $FTP_SERVER" || true
+
+      - name: Deploy via FTP -> Copy Files to Server
+        run: |
+          lftp -c "mirror --parallel=10 -R --verbose ./publish /" || true
+
         env:
           FTP_USERNAME: ${{ secrets.STAGE_USERNAME }}
           FTP_PASSWORD: ${{ secrets.STAGE_PASSWORD }}
