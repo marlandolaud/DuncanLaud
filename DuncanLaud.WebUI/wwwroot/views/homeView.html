@@ -3,7 +3,7 @@
         <h1 ng-bind="article.heading" class="media-heading">Media heading</h1>
         <div class="media">
             <div ng-if="article.imgURL == ''">
-                    <img alt="placeholder" class="media-object" src="img/avatar.jpg">
+                    <img loading="lazy" alt="placeholder" class="media-object" src="img/avatar.jpg">
             </div>
             <div ng-if="article.imgURL != ''">
                 <img alt="placeholder" class="media-object" ng-src="{{article.imgURL}}" style='height: 100%; width: 100%; object-fit: contain'>
