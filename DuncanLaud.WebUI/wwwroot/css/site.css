@@ -6,8 +6,8 @@
 /*width > col-xs*/
 @media (min-width: 768px) {
     .navbar-transparent {
-        background-color: transparent !important;
-    }
+/*        background-color: transparent !important;
+*/    }
 
     .content-body {
         min-height: 700px;
@@ -56,9 +56,11 @@
 }
 
 .splash {
-    /*royalty free image from pixabay.com/en/grass-dew-fresh-garden-green-1497774 */
+    /*royalty free image from   pixabay.com/en/grass-dew-fresh-garden-green-1497774 
+                                pixabay.com/photos/jamaica-ocean-tropical-nature-8569629/
+    */
     background-image: url('../img/back.jpg');
-    padding: 5em;
+    padding: 10em;
     background-color: #141d27;
     background-size: cover;
     background-attachment: fixed;
