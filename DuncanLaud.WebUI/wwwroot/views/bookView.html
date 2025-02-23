@@ -9,10 +9,10 @@
         </div>
         <div class="row">
             <div class="col-sm-12 col-md-4">
-                <img class="tips" ng-src="{{result.BookImageURL}}" style='height: 100%; width: 100%; object-fit: contain' />
+                <img loading="lazy" class="tips" ng-src="{{result.BookImageURL}}" style='height: 100%; width: 100%; object-fit: contain' />
             </div>
             <div class="col-sm-12 col-md-4" ng-if="result.BookImageURL2 !== ''">
-                <img class="tips" ng-src="{{result.BookImageURL2}}" style='height: 100%; width: 100%; object-fit: contain' />
+                <img loading="lazy" class="tips" ng-src="{{result.BookImageURL2}}" style='height: 100%; width: 100%; object-fit: contain' />
             </div>
             <div class="book-summary row" ng-if="result.ISBN10 > 0">
                 <div class="col-sm-12">
@@ -41,7 +41,7 @@
                     </div>
                     <div>
                         <a ng-href="{{result.PurchaseURL}}">
-                            <img src="https://www.paypalobjects.com/en_US/i/btn/btn_buynowCC_LG.gif" alt="PayPal - The safer, easier way to pay online!"
+                            <img loading="lazy" src="https://www.paypalobjects.com/en_US/i/btn/btn_buynowCC_LG.gif" alt="PayPal - The safer, easier way to pay online!"
                                  width="171" height="47" border="0" />
                         </a>
                     </div>

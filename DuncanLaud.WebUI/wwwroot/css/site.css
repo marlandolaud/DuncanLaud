@@ -60,11 +60,16 @@
         pixabay.com/en/grass-dew-fresh-garden-green-1497774/
         pixabay.com/photos/jamaica-ocean-tropical-nature-8569629/
     */
-    background-image: url('../img/back.jpg');
+    background-image: image-set(
+        url('../img/backXS.jpg') 1x,
+        url('../img/backS.jpg') 2x,
+        url('../img/backM.jpg') 3x,
+        url('../img/back.jpg') 4x
+    );
     padding: 10em;
     background-color: #141d27;
     background-repeat: no-repeat;
-    background-size: contain, cover;
+    background-size: cover;
     background-attachment: fixed;
     color: #fff;
     text-align: center;
