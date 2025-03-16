@@ -38,14 +38,14 @@ mod.factory('bookListFactory', function ($sce) {
             Language: 'English',
             ProductDimensionsInches: [0, 0, 0],
             ShippingWeightOunces: 0,
-            SuggestedRetailPriceUSD: ['TBD'], // fill in when book is on amazon
+            SuggestedRetailPriceUSD: ['15.00'],
             Author: 'C.A. Duncan-Laud',
             ThumbnailURL: 'img/WingsofHopeSmall.jpg',
             BookImageURL: 'img/WingsofHope.jpg',
             BookImageURL2: '',
             Details: "",
-            AmazonId: '', // fill in when book is on amazon
-            PurchaseURL: $sce.trustAsResourceUrl(''), // fill in when book is on amazon
+            AmazonId: 'B0F1FYDR67',
+            PurchaseURL: $sce.trustAsResourceUrl('https://www.amazon.com/dp/B0F1FYDR67'),
             DescriptionHeading: 'Poems and Verses that comfort, inspire, encourage, and challenge: for every season of life, in any state of mind',
             DescriptionHtmlBody: $sce.trustAsHtml('<p data-placeholder="Type or paste your content here!" style="line-height:1.2;margin-bottom:0pt;margin-top:0pt;" dir="ltr" id="docs-internal-guid-3d6d6630-7fff-339c-b4a3-d0c272f19ccf">On Wings of Hope is a collection of poems and verses based on real life experiences. This body of work encompasses a myriad of experiences and emotions that will resonate with any reader.</p><p style="line-height:1.2;margin-bottom:0pt;margin-top:0pt;" dir="ltr">“I write for my mental and spiritual health. When I focus on my blessings, I realize the joy and beauty in everyday life – so I write about matters of the heart such as love, loss, faith, friendship, struggles, and triumph anchored in hope. These themes keep me centered and fill my life with peace and joy, even when life’s circumstances dictate otherwise.</p><p style="line-height:1.2;margin-bottom:0pt;margin-top:0pt;" dir="ltr"><br data-cke-filler="true"></p><p style="line-height:1.2;margin-bottom:0pt;margin-top:0pt;" dir="ltr">Inspired by this assurance from God’s words, “We have hope as an anchor for the soul, firm and secure…” These poems reflect the melody in the heart when the soul comes alive with hope and gratitude.&nbsp;</p><p>If you find refuge in the pages of a good book,&nbsp;On Wings of Hope will be a sanctuary for your reading pleasure.</p>')
 
@@ -135,8 +135,7 @@ mod.controller('MainController', function ($scope, $sce, $route, $routeParams, $
 
     $scope.title = 'DuncanLaud.com';
     $scope.artistName = 'Christine Duncan-Laud';
-    $scope.artistBioTitle = 'The Heart of Education and the Art of Storytelling'
-    $scope.artistBio = $sce.trustAsHtml('<p>Christine, a gifted author and educator, was born on the vibrant island of Jamaica, West Indies. From a young age, she exhibited a passion for learning and storytelling. After graduating from Moneague Teachers\' College in Jamaica, she began her teaching career in the rural communities of St. Mary and St. Catherine, where she dedicated several years to shaping young minds and inspiring future generations.</p><p>In 1991, Christine’s thirst for knowledge and professional growth led her to immigrate to the United States. She settled in Florida, where she continued to pursue her passion for education by earning a Bachelor of Arts degree in Elementary Education from Florida Atlantic University. Her commitment to her students and their success was evident throughout her career, and she became a respected member of the teaching community in Ft. Lauderdale, Florida.</p><p>Throughout her tenure in the classroom, Christine also nurtured her creative side. Her love for writing blossomed as she began crafting captivating plays for churches, schools, and social events. These plays, infused with rich storytelling and meaningful themes, became a beloved part of the communities she served. Her ability to blend education and creativity resulted in works that were both entertaining and thought-provoking, further establishing her as a versatile writer.</p><p>After many years of dedicating herself to her students and writing, Christine retired from teaching and shifted her focus fully to her passion for writing. Christine’s life has been one of dedication, creativity, and a love for both education and the written word. Though retired, she remains an active presence in the world of literature, continuing to inspire and share her unique voice with others.</p>')
+    $scope.aritistBio = 'Christine, a talented author, was born in the beautiful island of Jamaica, West Indies. After graduating from the Moneague Teachers\' College, she spent several years teaching in St.Mary and St.Catherine before immigrating to the US in 1991 to pursue her passion for education.She went on to earn a BA in Elementary Education from Florida Atlantic University and is currently employed as a teacher in Ft Lauderdale, Florida.In addition to her teaching career, Christine has also written captivating plays for various churches, schools, and social events, showcasing her creative and versatile writing skills.'
     $scope.emailAddress = 'christine@duncanlaud.com'
     $scope.artistImageUrl = 'img/author263x400.jpg';
     $scope.faceBookURL = 'https://www.facebook.com/christine.duncanlaud';
