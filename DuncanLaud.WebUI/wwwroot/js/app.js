@@ -38,14 +38,14 @@ mod.factory('bookListFactory', function ($sce) {
             Language: 'English',
             ProductDimensionsInches: [0, 0, 0],
             ShippingWeightOunces: 0,
-            SuggestedRetailPriceUSD: ['15.00'],
+            SuggestedRetailPriceUSD: ['16.00'],
             Author: 'C.A. Duncan-Laud',
             ThumbnailURL: 'img/WingsofHopeSmall.jpg',
             BookImageURL: 'img/WingsofHope.jpg',
             BookImageURL2: '',
             Details: "",
             AmazonId: 'B0F1FYDR67',
-            PurchaseURL: $sce.trustAsResourceUrl('https://www.amazon.com/dp/B0F1FYDR67'),
+            PurchaseURL: $sce.trustAsResourceUrl('https://penthumb.com/products/on-wings-of-hope'),
             DescriptionHeading: 'Poems and Verses that comfort, inspire, encourage, and challenge: for every season of life, in any state of mind',
             DescriptionHtmlBody: $sce.trustAsHtml('<p data-placeholder="Type or paste your content here!" style="line-height:1.2;margin-bottom:0pt;margin-top:0pt;" dir="ltr" id="docs-internal-guid-3d6d6630-7fff-339c-b4a3-d0c272f19ccf">On Wings of Hope is a collection of poems and verses based on real life experiences. This body of work encompasses a myriad of experiences and emotions that will resonate with any reader.</p><p style="line-height:1.2;margin-bottom:0pt;margin-top:0pt;" dir="ltr">“I write for my mental and spiritual health. When I focus on my blessings, I realize the joy and beauty in everyday life – so I write about matters of the heart such as love, loss, faith, friendship, struggles, and triumph anchored in hope. These themes keep me centered and fill my life with peace and joy, even when life’s circumstances dictate otherwise.</p><p style="line-height:1.2;margin-bottom:0pt;margin-top:0pt;" dir="ltr"><br data-cke-filler="true"></p><p style="line-height:1.2;margin-bottom:0pt;margin-top:0pt;" dir="ltr">Inspired by this assurance from God’s words, “We have hope as an anchor for the soul, firm and secure…” These poems reflect the melody in the heart when the soul comes alive with hope and gratitude.&nbsp;</p><p>If you find refuge in the pages of a good book,&nbsp;On Wings of Hope will be a sanctuary for your reading pleasure.</p>')
 
