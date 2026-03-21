@@ -42,15 +42,7 @@ export default function Navbar() {
           >
             Home
           </NavLink>
-          <a
-            href="https://penthumb.com"
-            className="navbar__link"
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={closeMenu}
-          >
-            Store
-          </a>
+          
           <NavLink
             to="/about"
             className={({ isActive }) => `navbar__link ${isActive ? 'navbar__link--active' : ''}`}

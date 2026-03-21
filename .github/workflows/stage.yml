@@ -6,7 +6,7 @@ on:
 
   pull_request:
     types: [opened, reopened]
-    
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -14,12 +14,17 @@ jobs:
 
       - name: Upgrade & Update
         run: sudo apt-get update && sudo apt-get upgrade
-        
+
       - name: Install FTP client
         run: sudo apt-get install -y lftp
-      
+
       - name: Checkout repository
         uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
 
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v3
