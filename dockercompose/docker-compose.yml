@@ -1,0 +1,13 @@
+name: duncanlaud
+
+services:
+  web:
+    build:
+      # Context is the project root so both DuncanLaud.WebUI/ and duncanlaud-react/ are available
+      context: ..
+      dockerfile: dockercompose/Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080

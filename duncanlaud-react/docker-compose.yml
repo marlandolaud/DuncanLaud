@@ -1,0 +1,39 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runner
+    image: duncanlaud-web:latest
+    container_name: duncanlaud-web
+    ports:
+      - "8080:80"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    environment:
+      - TZ=America/New_York
+    labels:
+      - "com.duncanlaud.project=duncanlaud-web"
+      - "com.duncanlaud.description=C.A. Duncan-Laud Author Website"
+
+  # Optional: local dev server (hot reload) — run with: docker compose --profile dev up
+  dev:
+    profiles: ["dev"]
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    image: duncanlaud-dev:latest
+    container_name: duncanlaud-dev
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+    command: npm run dev
