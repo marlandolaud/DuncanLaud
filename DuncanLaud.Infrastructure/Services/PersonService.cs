@@ -17,15 +17,19 @@ public class PersonService : IPersonService
 
     public async Task<Person> AddPersonAsync(CreatePersonCommand command, CancellationToken ct)
     {
-        ValidateCommand(command);
+        var sanitizedFirst = PersonValidator.Sanitize(command.FirstName);
+        var sanitizedLast  = PersonValidator.Sanitize(command.LastName);
+        var sanitizedPref  = command.PreferredName is null ? null : PersonValidator.Sanitize(command.PreferredName);
+
+        ValidateFields(sanitizedFirst, sanitizedLast, sanitizedPref, command.BirthDate);
 
         var person = new Person
         {
             Id = Guid.NewGuid(),
             GroupId = command.GroupId,
-            FirstName = command.FirstName.Trim(),
-            LastName = command.LastName.Trim(),
-            PreferredName = command.PreferredName?.Trim(),
+            FirstName = sanitizedFirst,
+            LastName = sanitizedLast,
+            PreferredName = string.IsNullOrEmpty(sanitizedPref) ? null : sanitizedPref,
             BirthDate = command.BirthDate,
             ImageData = command.ImageData,
             ImageContentType = command.ImageContentType,
@@ -45,11 +49,15 @@ public class PersonService : IPersonService
         if (person.GroupId != command.GroupId)
             throw new KeyNotFoundException($"Person {command.PersonId} does not belong to group {command.GroupId}.");
 
-        ValidateFields(command.FirstName, command.LastName, command.PreferredName, command.BirthDate);
+        var sanitizedFirst = PersonValidator.Sanitize(command.FirstName);
+        var sanitizedLast  = PersonValidator.Sanitize(command.LastName);
+        var sanitizedPref  = command.PreferredName is null ? null : PersonValidator.Sanitize(command.PreferredName);
 
-        person.FirstName = command.FirstName.Trim();
-        person.LastName = command.LastName.Trim();
-        person.PreferredName = command.PreferredName?.Trim();
+        ValidateFields(sanitizedFirst, sanitizedLast, sanitizedPref, command.BirthDate);
+
+        person.FirstName = sanitizedFirst;
+        person.LastName = sanitizedLast;
+        person.PreferredName = string.IsNullOrEmpty(sanitizedPref) ? null : sanitizedPref;
         person.BirthDate = command.BirthDate;
 
         if (command.RemoveImage)
@@ -88,26 +96,23 @@ public class PersonService : IPersonService
             today);
     }
 
-    private static void ValidateCommand(CreatePersonCommand command)
-        => ValidateFields(command.FirstName, command.LastName, command.PreferredName, command.BirthDate);
-
     private static void ValidateFields(string firstName, string lastName, string? preferredName, DateOnly birthDate)
     {
         if (!PersonValidator.IsValidName(firstName))
-            throw new ArgumentException("First name must be between 2 and 100 characters.", nameof(firstName));
+            throw new ArgumentException("First name must be 2–100 letters and numbers only.", nameof(firstName));
 
         if (!PersonValidator.IsValidName(lastName))
-            throw new ArgumentException("Last name must be between 2 and 100 characters.", nameof(lastName));
+            throw new ArgumentException("Last name must be 2–100 letters and numbers only.", nameof(lastName));
 
-        if (preferredName is not null && !PersonValidator.IsValidName(preferredName, required: false))
-            throw new ArgumentException("Preferred name must be between 2 and 100 characters.", nameof(preferredName));
+        if (!string.IsNullOrEmpty(preferredName) && !PersonValidator.IsValidName(preferredName, required: false))
+            throw new ArgumentException("Preferred name must be 2–100 letters and numbers only.", nameof(preferredName));
 
         if (!PersonValidator.IsValidBirthDate(birthDate))
             throw new ArgumentException("Birth date must be in the past and no earlier than 1900.", nameof(birthDate));
 
         CheckProfanity(firstName, "First name");
         CheckProfanity(lastName, "Last name");
-        if (preferredName is not null)
+        if (!string.IsNullOrEmpty(preferredName))
             CheckProfanity(preferredName, "Preferred name");
     }
 

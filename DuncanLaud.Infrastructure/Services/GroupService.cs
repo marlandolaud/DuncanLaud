@@ -1,3 +1,4 @@
+using DuncanLaud.Domain.Services;
 using DuncanLaud.Infrastructure.Entities;
 using DuncanLaud.Infrastructure.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -21,20 +22,24 @@ public class GroupService : IGroupService
         if (existing is not null)
             return existing;
 
-        var trimmedName = name.Trim();
-        if (string.IsNullOrWhiteSpace(trimmedName))
+        var sanitized = PersonValidator.Sanitize(name);
+
+        if (string.IsNullOrWhiteSpace(sanitized))
             throw new ArgumentException("Group name is required.", nameof(name));
 
-        if (trimmedName.Length < 2 || trimmedName.Length > 100)
+        if (sanitized.Length < 2 || sanitized.Length > 100)
             throw new ArgumentException("Group name must be between 2 and 100 characters.", nameof(name));
 
-        if (ProfanityChecker.IsProfanity(trimmedName))
+        if (!PersonValidator.IsValidName(sanitized))
+            throw new ArgumentException("Group name may only contain letters (A-Z, a-z) and numbers (0-9).", nameof(name));
+
+        if (ProfanityChecker.IsProfanity(sanitized))
             throw new ArgumentException("Group name contains inappropriate content.", nameof(name));
 
         var group = new Group
         {
             Id = groupId,
-            Name = name.Trim(),
+            Name = sanitized,
             CreatedAtUtc = DateTime.UtcNow
         };
 

@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { fetchPerson, updatePerson, personImageUrl } from '../../services/groupApi';
+import { sanitizeTextInput } from '../../utils/sanitize';
 import defaultAvatar from '../../assets/default-avatar.svg';
 
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
@@ -41,6 +42,15 @@ export default function EditPersonForm({ groupId, personId, onSuccess, onCancel 
     load();
   }, [groupId, personId]);
 
+  /** For text name fields: sanitize to A-Za-z0-9 only on every keystroke. */
+  function setName(field) {
+    return (e) => {
+      setForm((prev) => ({ ...prev, [field]: sanitizeTextInput(e.target.value) }));
+      setErrors((prev) => ({ ...prev, [field]: '' }));
+    };
+  }
+
+  /** For non-sanitized fields (e.g. date). */
   function set(field) {
     return (e) => {
       setForm((prev) => ({ ...prev, [field]: e.target.value }));
@@ -77,12 +87,12 @@ export default function EditPersonForm({ groupId, personId, onSuccess, onCancel 
 
   function validate() {
     const errs = {};
-    if (form.firstName.trim().length < 2) errs.firstName = 'First name must be at least 2 characters.';
-    if (form.firstName.trim().length > 100) errs.firstName = 'First name must be 100 characters or fewer.';
-    if (form.lastName.trim().length < 2) errs.lastName = 'Last name must be at least 2 characters.';
-    if (form.lastName.trim().length > 100) errs.lastName = 'Last name must be 100 characters or fewer.';
-    if (form.preferredName.trim() && form.preferredName.trim().length < 2)
-      errs.preferredName = 'Preferred name must be at least 2 characters.';
+    if (form.firstName.length < 2) errs.firstName = 'First name must be at least 2 characters (letters and numbers only).';
+    if (form.firstName.length > 100) errs.firstName = 'First name must be 100 characters or fewer.';
+    if (form.lastName.length < 2) errs.lastName = 'Last name must be at least 2 characters (letters and numbers only).';
+    if (form.lastName.length > 100) errs.lastName = 'Last name must be 100 characters or fewer.';
+    if (form.preferredName && form.preferredName.length < 2)
+      errs.preferredName = 'Preferred name must be at least 2 characters (letters and numbers only).';
     if (!form.birthDate) errs.birthDate = 'Birthday is required.';
     else {
       const bd = new Date(form.birthDate);
@@ -103,9 +113,9 @@ export default function EditPersonForm({ groupId, personId, onSuccess, onCancel 
 
     try {
       await updatePerson(groupId, personId, {
-        firstName: form.firstName.trim(),
-        lastName: form.lastName.trim(),
-        preferredName: form.preferredName.trim() || null,
+        firstName: form.firstName,
+        lastName: form.lastName,
+        preferredName: form.preferredName || null,
         birthDate: form.birthDate,
         photoFile: photoFile || null,
         removeImage,
@@ -176,22 +186,22 @@ export default function EditPersonForm({ groupId, personId, onSuccess, onCancel 
       <div className="add-person-form__fields">
         <div className="add-person-form__field">
           <label htmlFor="editFirstName">First Name <span aria-hidden="true">*</span></label>
-          <input id="editFirstName" type="text" value={form.firstName} onChange={set('firstName')}
-            maxLength={100} required autoComplete="given-name" />
+          <input id="editFirstName" type="text" value={form.firstName} onChange={setName('firstName')}
+            maxLength={100} pattern="[A-Za-z0-9]+" required autoComplete="given-name" />
           {errors.firstName && <span className="add-person-form__error" role="alert">{errors.firstName}</span>}
         </div>
 
         <div className="add-person-form__field">
           <label htmlFor="editLastName">Last Name <span aria-hidden="true">*</span></label>
-          <input id="editLastName" type="text" value={form.lastName} onChange={set('lastName')}
-            maxLength={100} required autoComplete="family-name" />
+          <input id="editLastName" type="text" value={form.lastName} onChange={setName('lastName')}
+            maxLength={100} pattern="[A-Za-z0-9]+" required autoComplete="family-name" />
           {errors.lastName && <span className="add-person-form__error" role="alert">{errors.lastName}</span>}
         </div>
 
         <div className="add-person-form__field">
           <label htmlFor="editPreferredName">Preferred Name</label>
-          <input id="editPreferredName" type="text" value={form.preferredName} onChange={set('preferredName')}
-            maxLength={100} autoComplete="nickname" />
+          <input id="editPreferredName" type="text" value={form.preferredName} onChange={setName('preferredName')}
+            maxLength={100} pattern="[A-Za-z0-9]*" autoComplete="nickname" />
           {errors.preferredName && <span className="add-person-form__error" role="alert">{errors.preferredName}</span>}
         </div>
 
@@ -202,6 +212,8 @@ export default function EditPersonForm({ groupId, personId, onSuccess, onCancel 
           {errors.birthDate && <span className="add-person-form__error" role="alert">{errors.birthDate}</span>}
         </div>
       </div>
+
+      <p className="add-person-form__hint">Names may only contain letters (A–Z, a–z) and numbers (0–9).</p>
 
       {submitError && <p className="add-person-form__submit-error" role="alert">{submitError}</p>}
 

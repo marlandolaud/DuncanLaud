@@ -1,26 +1,31 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { v7 as uuidv7 } from 'uuid';
+import { sanitizeTextInput } from '../../utils/sanitize';
 
 export default function CreateGroupView() {
   const [name, setName] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
+  function handleNameChange(e) {
+    setName(sanitizeTextInput(e.target.value));
+    setError('');
+  }
+
   function handleCreate(e) {
     e.preventDefault();
-    const trimmed = name.trim();
-    if (trimmed.length < 2) {
-      setError('Group name must be at least 2 characters.');
+    if (name.length < 2) {
+      setError('Group name must be at least 2 characters (letters and numbers only).');
       return;
     }
-    if (trimmed.length > 100) {
+    if (name.length > 100) {
       setError('Group name must be 100 characters or fewer.');
       return;
     }
     const newId = uuidv7();
     // Store name in sessionStorage so GroupLandingView can use it on first creation
-    sessionStorage.setItem(`group_name_${newId}`, trimmed);
+    sessionStorage.setItem(`group_name_${newId}`, name);
     navigate(`/mygroup/${newId}`);
   }
 
@@ -42,12 +47,14 @@ export default function CreateGroupView() {
             className={`group-create__input ${error ? 'group-create__input--error' : ''}`}
             type="text"
             value={name}
-            onChange={(e) => { setName(e.target.value); setError(''); }}
-            placeholder="e.g. Smith Family"
+            onChange={handleNameChange}
+            placeholder="e.g. SmithFamily"
             maxLength={100}
+            pattern="[A-Za-z0-9]+"
             required
             autoFocus
           />
+          <p className="group-create__hint">Letters and numbers only (A–Z, a–z, 0–9).</p>
           {error && <p className="group-create__error" role="alert">{error}</p>}
 
           <button className="group-create__btn" type="submit">
