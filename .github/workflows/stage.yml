@@ -45,7 +45,16 @@ jobs:
 
       - name: Set ASPNETCORE_ENVIRONMENT in web.config
         run: |
-          sed -i 's|<environmentVariables />|<environmentVariables><environmentVariable name="ASPNETCORE_ENVIRONMENT" value="Staging" /></environmentVariables>|g' ./publish/web.config
+          python3 - <<'EOF'
+          import re
+          with open('./publish/web.config', 'r') as f:
+              content = f.read()
+          env_block = '<environmentVariables><environmentVariable name="ASPNETCORE_ENVIRONMENT" value="Staging" /></environmentVariables>'
+          # Convert self-closing <aspNetCore ... /> to <aspNetCore ...>{env_block}</aspNetCore>
+          content = re.sub(r'(<aspNetCore\b[^>]*?)\s*/>', r'\1>' + env_block + '</aspNetCore>', content)
+          with open('./publish/web.config', 'w') as f:
+              f.write(content)
+          EOF
 
       - name: Deploy via FTP
         run: |
