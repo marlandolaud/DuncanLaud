@@ -34,6 +34,26 @@ export function addPerson(groupId, { firstName, lastName, preferredName, birthDa
   return request(`${BASE}/${groupId}/person`, { method: 'POST', body: form });
 }
 
+export function fetchPersons(groupId) {
+  return request(`${BASE}/${groupId}/persons`);
+}
+
+export function fetchPerson(groupId, personId) {
+  return request(`${BASE}/${groupId}/person/${personId}`);
+}
+
+export function updatePerson(groupId, personId, { firstName, lastName, preferredName, birthDate, photoFile, removeImage }) {
+  const form = new FormData();
+  form.append('firstName', firstName);
+  form.append('lastName', lastName);
+  if (preferredName) form.append('preferredName', preferredName);
+  form.append('birthDate', birthDate);
+  form.append('removeImage', removeImage ? 'true' : 'false');
+  if (photoFile) form.append('image', photoFile);
+
+  return request(`${BASE}/${groupId}/person/${personId}`, { method: 'PUT', body: form });
+}
+
 export function fetchBirthdays(groupId) {
   return request(`${BASE}/${groupId}/birthdays`);
 }

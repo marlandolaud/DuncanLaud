@@ -1,14 +1,26 @@
 import { useState, useEffect, useCallback } from 'react';
-import { fetchGroup, createGroup, fetchBirthdays } from '../../services/groupApi';
+import { fetchGroup, createGroup, fetchBirthdays, fetchPersons } from '../../services/groupApi';
 import AddPersonForm from './AddPersonForm';
+import EditPersonForm from './EditPersonForm';
 import BirthdayList from './BirthdayList';
+import MemberList from './MemberList';
 
-const STATE = { LOADING: 'loading', NEW_GROUP: 'new_group', ADD_MEMBER: 'add_member', LANDING: 'landing', ERROR: 'error' };
+const STATE = {
+  LOADING: 'loading',
+  NEW_GROUP: 'new_group',
+  ADD_MEMBER: 'add_member',
+  EDIT_MEMBER: 'edit_member',
+  VIEW_MEMBERS: 'view_members',
+  LANDING: 'landing',
+  ERROR: 'error',
+};
 
 export default function GroupLandingView({ groupId }) {
   const [view, setView] = useState(STATE.LOADING);
   const [group, setGroup] = useState(null);
   const [birthdays, setBirthdays] = useState([]);
+  const [persons, setPersons] = useState([]);
+  const [editPersonId, setEditPersonId] = useState(null);
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
 
@@ -17,8 +29,16 @@ export default function GroupLandingView({ groupId }) {
       const data = await fetchBirthdays(groupId);
       setBirthdays(data);
     } catch {
-      // Non-fatal — just show empty list
       setBirthdays([]);
+    }
+  }, [groupId]);
+
+  const loadPersons = useCallback(async () => {
+    try {
+      const data = await fetchPersons(groupId);
+      setPersons(data);
+    } catch {
+      setPersons([]);
     }
   }, [groupId]);
 
@@ -31,7 +51,6 @@ export default function GroupLandingView({ groupId }) {
         setView(STATE.LANDING);
       } catch (err) {
         if (err.status === 404) {
-          // Group not found — create it using stored name or prompt
           const storedName = sessionStorage.getItem(`group_name_${groupId}`);
           if (storedName) {
             try {
@@ -44,7 +63,6 @@ export default function GroupLandingView({ groupId }) {
               setView(STATE.ERROR);
             }
           } else {
-            // No stored name — shouldn't happen via normal flow, but handle gracefully
             setError('Group not found. Please create a new group from the Birthday Groups page.');
             setView(STATE.ERROR);
           }
@@ -61,6 +79,23 @@ export default function GroupLandingView({ groupId }) {
     loadBirthdays().then(() => setView(STATE.LANDING));
   }
 
+  function handlePersonUpdated() {
+    Promise.all([loadBirthdays(), loadPersons()]).then(() => {
+      setEditPersonId(null);
+      setView(STATE.VIEW_MEMBERS);
+    });
+  }
+
+  function handleEditPerson(personId) {
+    setEditPersonId(personId);
+    setView(STATE.EDIT_MEMBER);
+  }
+
+  async function handleViewMembers() {
+    await loadPersons();
+    setView(STATE.VIEW_MEMBERS);
+  }
+
   function copyLink() {
     const url = window.location.href;
     navigator.clipboard?.writeText(url).then(() => {
@@ -73,7 +108,7 @@ export default function GroupLandingView({ groupId }) {
     return (
       <div className="group-page group-page--loading" aria-live="polite" aria-label="Loading group">
         <div className="group-loading__spinner" />
-        <p>Loading your group…</p>
+        <p>Loading your group...</p>
       </div>
     );
   }
@@ -112,6 +147,49 @@ export default function GroupLandingView({ groupId }) {
     );
   }
 
+  if (view === STATE.EDIT_MEMBER && editPersonId) {
+    return (
+      <div className="group-page">
+        <div className="group-header">
+          <h1 className="group-header__name">{group?.name}</h1>
+        </div>
+        <EditPersonForm
+          groupId={groupId}
+          personId={editPersonId}
+          onSuccess={handlePersonUpdated}
+          onCancel={() => {
+            setEditPersonId(null);
+            setView(STATE.VIEW_MEMBERS);
+          }}
+        />
+      </div>
+    );
+  }
+
+  if (view === STATE.VIEW_MEMBERS) {
+    return (
+      <div className="group-page">
+        <div className="group-header">
+          <h1 className="group-header__name">{group?.name}</h1>
+          <div className="group-header__actions">
+            <button
+              className="group-header__back-btn"
+              onClick={() => setView(STATE.LANDING)}
+              type="button"
+            >
+              Back to Birthdays
+            </button>
+          </div>
+        </div>
+
+        <section className="group-members">
+          <h2 className="group-members__heading">All Members ({persons.length})</h2>
+          <MemberList persons={persons} groupId={groupId} onEdit={handleEditPerson} />
+        </section>
+      </div>
+    );
+  }
+
   // LANDING view
   return (
     <div className="group-page">
@@ -125,13 +203,22 @@ export default function GroupLandingView({ groupId }) {
               {copied ? 'Copied!' : 'Copy'}
             </button>
           </div>
-          <button
-            className="group-header__add-btn"
-            onClick={() => setView(STATE.ADD_MEMBER)}
-            type="button"
-          >
-            + Add Member
-          </button>
+          <div className="group-header__btns">
+            <button
+              className="group-header__add-btn"
+              onClick={() => setView(STATE.ADD_MEMBER)}
+              type="button"
+            >
+              + Add Member
+            </button>
+            <button
+              className="group-header__members-btn"
+              onClick={handleViewMembers}
+              type="button"
+            >
+              View All Members
+            </button>
+          </div>
         </div>
       </div>
 

@@ -55,11 +55,18 @@ namespace DuncanLaud.WebUI
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            // Auto-apply EF Core migrations on startup so the schema is always current
+            // Auto-apply EF Core migrations on startup (skip for InMemory provider used in tests)
             using (var scope = app.ApplicationServices.CreateScope())
             {
                 var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-                db.Database.Migrate();
+                if (db.Database.IsRelational())
+                {
+                    db.Database.Migrate();
+                }
+                else
+                {
+                    db.Database.EnsureCreated();
+                }
             }
 
             if (env.IsDevelopment())

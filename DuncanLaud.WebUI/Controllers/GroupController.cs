@@ -116,6 +116,119 @@ public class GroupController : ControllerBase
         }
     }
 
+    [HttpGet("{groupId:guid}/persons")]
+    [ProducesResponseType(typeof(IReadOnlyList<PersonResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetPersons(Guid groupId, CancellationToken ct)
+    {
+        var group = await _groupService.GetGroupAsync(groupId, ct);
+        if (group is null)
+            return NotFound();
+
+        var persons = await _personService.GetAllByGroupAsync(groupId, ct);
+
+        var response = persons.Select(p => new PersonResponse(
+            p.Id,
+            p.FirstName,
+            p.LastName,
+            p.PreferredName,
+            p.BirthDate,
+            p.ImageData is not null,
+            p.CreatedAtUtc));
+
+        return Ok(response);
+    }
+
+    [HttpGet("{groupId:guid}/person/{personId:guid}")]
+    [ProducesResponseType(typeof(PersonResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetPerson(Guid groupId, Guid personId, CancellationToken ct)
+    {
+        var person = await _personRepo.GetByIdAsync(personId, ct);
+        if (person is null || person.GroupId != groupId)
+            return NotFound();
+
+        return Ok(new PersonResponse(
+            person.Id,
+            person.FirstName,
+            person.LastName,
+            person.PreferredName,
+            person.BirthDate,
+            person.ImageData is not null,
+            person.CreatedAtUtc));
+    }
+
+    [HttpPut("{groupId:guid}/person/{personId:guid}")]
+    [ProducesResponseType(typeof(PersonResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [Consumes("multipart/form-data")]
+    public async Task<IActionResult> UpdatePerson(
+        Guid groupId,
+        Guid personId,
+        [FromForm] string firstName,
+        [FromForm] string lastName,
+        [FromForm] string? preferredName,
+        [FromForm] DateOnly birthDate,
+        [FromForm] bool removeImage,
+        IFormFile? image,
+        CancellationToken ct)
+    {
+        var group = await _groupService.GetGroupAsync(groupId, ct);
+        if (group is null)
+            return NotFound();
+
+        byte[]? imageData = null;
+        string? imageContentType = null;
+
+        if (image is not null && image.Length > 0)
+        {
+            if (image.Length > MaxImageSize)
+                return BadRequest(new { error = "Image must be 5 MB or smaller." });
+
+            if (!AllowedContentTypes.Contains(image.ContentType))
+                return BadRequest(new { error = "Image must be JPEG, PNG, WebP, or GIF." });
+
+            using var ms = new MemoryStream();
+            await image.CopyToAsync(ms, ct);
+            imageData = ms.ToArray();
+            imageContentType = image.ContentType;
+        }
+
+        try
+        {
+            var command = new UpdatePersonCommand(
+                personId,
+                groupId,
+                firstName,
+                lastName,
+                preferredName,
+                birthDate,
+                imageData,
+                imageContentType,
+                removeImage);
+
+            var person = await _personService.UpdatePersonAsync(command, ct);
+
+            return Ok(new PersonResponse(
+                person.Id,
+                person.FirstName,
+                person.LastName,
+                person.PreferredName,
+                person.BirthDate,
+                person.ImageData is not null,
+                person.CreatedAtUtc));
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
+    }
+
     [HttpGet("{groupId:guid}/person/{personId:guid}/image")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

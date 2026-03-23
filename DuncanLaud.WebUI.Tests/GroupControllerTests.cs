@@ -304,6 +304,227 @@ public class GroupControllerTests
         Assert.Equal("image/jpeg", fileResult.ContentType);
     }
 
+    // ── GetPersons ───────────────────────────────────
+
+    [Fact]
+    public async Task GetPersons_GroupNotFound_Returns404()
+    {
+        _groupServiceMock.Setup(s => s.GetGroupAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+                         .ReturnsAsync((Group?)null);
+
+        var result = await _sut.GetPersons(Guid.NewGuid(), CancellationToken.None);
+
+        Assert.IsType<NotFoundResult>(result);
+    }
+
+    [Fact]
+    public async Task GetPersons_GroupExists_ReturnsAllMembers()
+    {
+        var groupId = Guid.NewGuid();
+        _groupServiceMock.Setup(s => s.GetGroupAsync(groupId, It.IsAny<CancellationToken>()))
+                         .ReturnsAsync(new Group { Id = groupId, Name = "G", Members = new List<Person>() });
+        _personServiceMock.Setup(s => s.GetAllByGroupAsync(groupId, It.IsAny<CancellationToken>()))
+                          .ReturnsAsync(new List<Person>
+                          {
+                              new() { Id = Guid.NewGuid(), GroupId = groupId, FirstName = "Alice", LastName = "Smith",
+                                       BirthDate = new DateOnly(2000, 1, 1), CreatedAtUtc = DateTime.UtcNow },
+                              new() { Id = Guid.NewGuid(), GroupId = groupId, FirstName = "Bob", LastName = "Jones",
+                                       BirthDate = new DateOnly(1995, 6, 15), CreatedAtUtc = DateTime.UtcNow,
+                                       ImageData = new byte[] { 1 }, ImageContentType = "image/png" },
+                          });
+
+        var result = await _sut.GetPersons(groupId, CancellationToken.None);
+
+        var ok = Assert.IsType<OkObjectResult>(result);
+        var items = Assert.IsAssignableFrom<IEnumerable<PersonResponse>>(ok.Value);
+        var list = items.ToList();
+        Assert.Equal(2, list.Count);
+        Assert.Equal("Alice", list[0].FirstName);
+        Assert.False(list[0].HasImage);
+        Assert.True(list[1].HasImage);
+    }
+
+    // ── GetPerson ────────────────────────────────────
+
+    [Fact]
+    public async Task GetPerson_Found_Returns200()
+    {
+        var groupId = Guid.NewGuid();
+        var personId = Guid.NewGuid();
+        var person = new Person
+        {
+            Id = personId, GroupId = groupId, FirstName = "Alice", LastName = "Smith",
+            PreferredName = "Ali", BirthDate = new DateOnly(2000, 1, 1), CreatedAtUtc = DateTime.UtcNow
+        };
+        _personRepoMock.Setup(r => r.GetByIdAsync(personId, It.IsAny<CancellationToken>()))
+                       .ReturnsAsync(person);
+
+        var result = await _sut.GetPerson(groupId, personId, CancellationToken.None);
+
+        var ok = Assert.IsType<OkObjectResult>(result);
+        var response = Assert.IsType<PersonResponse>(ok.Value);
+        Assert.Equal("Alice", response.FirstName);
+        Assert.Equal("Ali", response.PreferredName);
+    }
+
+    [Fact]
+    public async Task GetPerson_NotFound_Returns404()
+    {
+        _personRepoMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+                       .ReturnsAsync((Person?)null);
+
+        var result = await _sut.GetPerson(Guid.NewGuid(), Guid.NewGuid(), CancellationToken.None);
+
+        Assert.IsType<NotFoundResult>(result);
+    }
+
+    [Fact]
+    public async Task GetPerson_WrongGroup_Returns404()
+    {
+        var personId = Guid.NewGuid();
+        var person = new Person
+        {
+            Id = personId, GroupId = Guid.NewGuid(), FirstName = "A", LastName = "B",
+            BirthDate = new DateOnly(2000, 1, 1), CreatedAtUtc = DateTime.UtcNow
+        };
+        _personRepoMock.Setup(r => r.GetByIdAsync(personId, It.IsAny<CancellationToken>()))
+                       .ReturnsAsync(person);
+
+        var result = await _sut.GetPerson(Guid.NewGuid(), personId, CancellationToken.None);
+
+        Assert.IsType<NotFoundResult>(result);
+    }
+
+    // ── UpdatePerson ─────────────────────────────────
+
+    [Fact]
+    public async Task UpdatePerson_GroupNotFound_Returns404()
+    {
+        _groupServiceMock.Setup(s => s.GetGroupAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+                         .ReturnsAsync((Group?)null);
+
+        var result = await _sut.UpdatePerson(
+            Guid.NewGuid(), Guid.NewGuid(), "Alice", "Smith", null,
+            new DateOnly(2000, 1, 1), false, null, CancellationToken.None);
+
+        Assert.IsType<NotFoundResult>(result);
+    }
+
+    [Fact]
+    public async Task UpdatePerson_Valid_Returns200()
+    {
+        var groupId = Guid.NewGuid();
+        var personId = Guid.NewGuid();
+        _groupServiceMock.Setup(s => s.GetGroupAsync(groupId, It.IsAny<CancellationToken>()))
+                         .ReturnsAsync(new Group { Id = groupId, Name = "G", Members = new List<Person>() });
+
+        var updatedPerson = new Person
+        {
+            Id = personId, GroupId = groupId, FirstName = "Bob", LastName = "Jones",
+            BirthDate = new DateOnly(1995, 6, 15), CreatedAtUtc = DateTime.UtcNow
+        };
+        _personServiceMock.Setup(s => s.UpdatePersonAsync(It.IsAny<UpdatePersonCommand>(), It.IsAny<CancellationToken>()))
+                          .ReturnsAsync(updatedPerson);
+
+        var result = await _sut.UpdatePerson(
+            groupId, personId, "Bob", "Jones", null,
+            new DateOnly(1995, 6, 15), false, null, CancellationToken.None);
+
+        var ok = Assert.IsType<OkObjectResult>(result);
+        var response = Assert.IsType<PersonResponse>(ok.Value);
+        Assert.Equal("Bob", response.FirstName);
+        Assert.Equal("Jones", response.LastName);
+    }
+
+    [Fact]
+    public async Task UpdatePerson_PersonNotFound_Returns404()
+    {
+        var groupId = Guid.NewGuid();
+        _groupServiceMock.Setup(s => s.GetGroupAsync(groupId, It.IsAny<CancellationToken>()))
+                         .ReturnsAsync(new Group { Id = groupId, Name = "G", Members = new List<Person>() });
+        _personServiceMock.Setup(s => s.UpdatePersonAsync(It.IsAny<UpdatePersonCommand>(), It.IsAny<CancellationToken>()))
+                          .ThrowsAsync(new KeyNotFoundException("Person not found."));
+
+        var result = await _sut.UpdatePerson(
+            groupId, Guid.NewGuid(), "Alice", "Smith", null,
+            new DateOnly(2000, 1, 1), false, null, CancellationToken.None);
+
+        Assert.IsType<NotFoundResult>(result);
+    }
+
+    [Fact]
+    public async Task UpdatePerson_ValidationError_Returns400()
+    {
+        var groupId = Guid.NewGuid();
+        _groupServiceMock.Setup(s => s.GetGroupAsync(groupId, It.IsAny<CancellationToken>()))
+                         .ReturnsAsync(new Group { Id = groupId, Name = "G", Members = new List<Person>() });
+        _personServiceMock.Setup(s => s.UpdatePersonAsync(It.IsAny<UpdatePersonCommand>(), It.IsAny<CancellationToken>()))
+                          .ThrowsAsync(new ArgumentException("First name must be between 2 and 100 characters."));
+
+        var result = await _sut.UpdatePerson(
+            groupId, Guid.NewGuid(), "A", "Smith", null,
+            new DateOnly(2000, 1, 1), false, null, CancellationToken.None);
+
+        Assert.IsType<BadRequestObjectResult>(result);
+    }
+
+    [Fact]
+    public async Task UpdatePerson_ImageTooLarge_Returns400()
+    {
+        var groupId = Guid.NewGuid();
+        _groupServiceMock.Setup(s => s.GetGroupAsync(groupId, It.IsAny<CancellationToken>()))
+                         .ReturnsAsync(new Group { Id = groupId, Name = "G", Members = new List<Person>() });
+
+        var largeImage = CreateMockFormFile("big.jpg", "image/jpeg", new byte[6 * 1024 * 1024]);
+        var result = await _sut.UpdatePerson(
+            groupId, Guid.NewGuid(), "Alice", "Smith", null,
+            new DateOnly(2000, 1, 1), false, largeImage, CancellationToken.None);
+
+        Assert.IsType<BadRequestObjectResult>(result);
+    }
+
+    [Fact]
+    public async Task UpdatePerson_InvalidImageType_Returns400()
+    {
+        var groupId = Guid.NewGuid();
+        _groupServiceMock.Setup(s => s.GetGroupAsync(groupId, It.IsAny<CancellationToken>()))
+                         .ReturnsAsync(new Group { Id = groupId, Name = "G", Members = new List<Person>() });
+
+        var badFile = CreateMockFormFile("hack.exe", "application/octet-stream", new byte[] { 1 });
+        var result = await _sut.UpdatePerson(
+            groupId, Guid.NewGuid(), "Alice", "Smith", null,
+            new DateOnly(2000, 1, 1), false, badFile, CancellationToken.None);
+
+        Assert.IsType<BadRequestObjectResult>(result);
+    }
+
+    [Fact]
+    public async Task UpdatePerson_WithNewImage_PassesImageToCommand()
+    {
+        var groupId = Guid.NewGuid();
+        var personId = Guid.NewGuid();
+        _groupServiceMock.Setup(s => s.GetGroupAsync(groupId, It.IsAny<CancellationToken>()))
+                         .ReturnsAsync(new Group { Id = groupId, Name = "G", Members = new List<Person>() });
+
+        var updatedPerson = new Person
+        {
+            Id = personId, GroupId = groupId, FirstName = "Alice", LastName = "Smith",
+            BirthDate = new DateOnly(2000, 1, 1), CreatedAtUtc = DateTime.UtcNow,
+            ImageData = new byte[] { 9, 8, 7 }, ImageContentType = "image/png"
+        };
+        _personServiceMock.Setup(s => s.UpdatePersonAsync(It.IsAny<UpdatePersonCommand>(), It.IsAny<CancellationToken>()))
+                          .ReturnsAsync(updatedPerson);
+
+        var imageFile = CreateMockFormFile("new.png", "image/png", new byte[] { 9, 8, 7 });
+        var result = await _sut.UpdatePerson(
+            groupId, personId, "Alice", "Smith", null,
+            new DateOnly(2000, 1, 1), false, imageFile, CancellationToken.None);
+
+        var ok = Assert.IsType<OkObjectResult>(result);
+        var response = Assert.IsType<PersonResponse>(ok.Value);
+        Assert.True(response.HasImage);
+    }
+
     // ── GetBirthdays ───────────────────────────────────
 
     [Fact]

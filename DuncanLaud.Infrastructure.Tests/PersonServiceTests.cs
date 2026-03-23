@@ -176,6 +176,185 @@ public class PersonServiceTests
         Assert.Contains("Birth date", ex.Message);
     }
 
+    // ── UpdatePersonAsync ──────────────────────────────
+
+    [Fact]
+    public async Task UpdatePersonAsync_Valid_UpdatesFields()
+    {
+        var groupId = Guid.NewGuid();
+        var personId = Guid.NewGuid();
+        var existing = new Person
+        {
+            Id = personId, GroupId = groupId, FirstName = "Alice", LastName = "Smith",
+            BirthDate = new DateOnly(2000, 1, 1), CreatedAtUtc = DateTime.UtcNow
+        };
+        _repoMock.Setup(r => r.GetByIdAsync(personId, It.IsAny<CancellationToken>()))
+                 .ReturnsAsync(existing);
+
+        var cmd = new UpdatePersonCommand(personId, groupId, "Bob", "Jones", "Bobby",
+            new DateOnly(1995, 6, 15), null, null, false);
+
+        var result = await _sut.UpdatePersonAsync(cmd, CancellationToken.None);
+
+        Assert.Equal("Bob", result.FirstName);
+        Assert.Equal("Jones", result.LastName);
+        Assert.Equal("Bobby", result.PreferredName);
+        Assert.Equal(new DateOnly(1995, 6, 15), result.BirthDate);
+        _repoMock.Verify(r => r.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task UpdatePersonAsync_PersonNotFound_ThrowsKeyNotFound()
+    {
+        _repoMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+                 .ReturnsAsync((Person?)null);
+
+        var cmd = new UpdatePersonCommand(Guid.NewGuid(), Guid.NewGuid(), "Al", "Sm", null,
+            new DateOnly(2000, 1, 1), null, null, false);
+
+        await Assert.ThrowsAsync<KeyNotFoundException>(() => _sut.UpdatePersonAsync(cmd, CancellationToken.None));
+    }
+
+    [Fact]
+    public async Task UpdatePersonAsync_WrongGroup_ThrowsKeyNotFound()
+    {
+        var personId = Guid.NewGuid();
+        var existing = new Person
+        {
+            Id = personId, GroupId = Guid.NewGuid(), FirstName = "A", LastName = "B",
+            BirthDate = new DateOnly(2000, 1, 1), CreatedAtUtc = DateTime.UtcNow
+        };
+        _repoMock.Setup(r => r.GetByIdAsync(personId, It.IsAny<CancellationToken>()))
+                 .ReturnsAsync(existing);
+
+        var cmd = new UpdatePersonCommand(personId, Guid.NewGuid(), "Al", "Sm", null,
+            new DateOnly(2000, 1, 1), null, null, false);
+
+        await Assert.ThrowsAsync<KeyNotFoundException>(() => _sut.UpdatePersonAsync(cmd, CancellationToken.None));
+    }
+
+    [Fact]
+    public async Task UpdatePersonAsync_InvalidName_ThrowsArgument()
+    {
+        var groupId = Guid.NewGuid();
+        var personId = Guid.NewGuid();
+        var existing = new Person
+        {
+            Id = personId, GroupId = groupId, FirstName = "Alice", LastName = "Smith",
+            BirthDate = new DateOnly(2000, 1, 1), CreatedAtUtc = DateTime.UtcNow
+        };
+        _repoMock.Setup(r => r.GetByIdAsync(personId, It.IsAny<CancellationToken>()))
+                 .ReturnsAsync(existing);
+
+        var cmd = new UpdatePersonCommand(personId, groupId, "A", "Smith", null,
+            new DateOnly(2000, 1, 1), null, null, false);
+
+        await Assert.ThrowsAsync<ArgumentException>(() => _sut.UpdatePersonAsync(cmd, CancellationToken.None));
+    }
+
+    [Fact]
+    public async Task UpdatePersonAsync_WithNewImage_ReplacesImage()
+    {
+        var groupId = Guid.NewGuid();
+        var personId = Guid.NewGuid();
+        var existing = new Person
+        {
+            Id = personId, GroupId = groupId, FirstName = "Alice", LastName = "Smith",
+            BirthDate = new DateOnly(2000, 1, 1), CreatedAtUtc = DateTime.UtcNow,
+            ImageData = new byte[] { 1, 2 }, ImageContentType = "image/jpeg"
+        };
+        _repoMock.Setup(r => r.GetByIdAsync(personId, It.IsAny<CancellationToken>()))
+                 .ReturnsAsync(existing);
+
+        var newImg = new byte[] { 9, 8, 7 };
+        var cmd = new UpdatePersonCommand(personId, groupId, "Alice", "Smith", null,
+            new DateOnly(2000, 1, 1), newImg, "image/png", false);
+
+        var result = await _sut.UpdatePersonAsync(cmd, CancellationToken.None);
+
+        Assert.Equal(newImg, result.ImageData);
+        Assert.Equal("image/png", result.ImageContentType);
+    }
+
+    [Fact]
+    public async Task UpdatePersonAsync_RemoveImage_ClearsImage()
+    {
+        var groupId = Guid.NewGuid();
+        var personId = Guid.NewGuid();
+        var existing = new Person
+        {
+            Id = personId, GroupId = groupId, FirstName = "Alice", LastName = "Smith",
+            BirthDate = new DateOnly(2000, 1, 1), CreatedAtUtc = DateTime.UtcNow,
+            ImageData = new byte[] { 1 }, ImageContentType = "image/jpeg"
+        };
+        _repoMock.Setup(r => r.GetByIdAsync(personId, It.IsAny<CancellationToken>()))
+                 .ReturnsAsync(existing);
+
+        var cmd = new UpdatePersonCommand(personId, groupId, "Alice", "Smith", null,
+            new DateOnly(2000, 1, 1), null, null, true);
+
+        var result = await _sut.UpdatePersonAsync(cmd, CancellationToken.None);
+
+        Assert.Null(result.ImageData);
+        Assert.Null(result.ImageContentType);
+    }
+
+    [Fact]
+    public async Task UpdatePersonAsync_NoImageChange_KeepsExisting()
+    {
+        var groupId = Guid.NewGuid();
+        var personId = Guid.NewGuid();
+        var existingImg = new byte[] { 1, 2, 3 };
+        var existing = new Person
+        {
+            Id = personId, GroupId = groupId, FirstName = "Alice", LastName = "Smith",
+            BirthDate = new DateOnly(2000, 1, 1), CreatedAtUtc = DateTime.UtcNow,
+            ImageData = existingImg, ImageContentType = "image/jpeg"
+        };
+        _repoMock.Setup(r => r.GetByIdAsync(personId, It.IsAny<CancellationToken>()))
+                 .ReturnsAsync(existing);
+
+        var cmd = new UpdatePersonCommand(personId, groupId, "Alice", "Smith", null,
+            new DateOnly(2000, 1, 1), null, null, false);
+
+        var result = await _sut.UpdatePersonAsync(cmd, CancellationToken.None);
+
+        Assert.Equal(existingImg, result.ImageData);
+        Assert.Equal("image/jpeg", result.ImageContentType);
+    }
+
+    // ── GetAllByGroupAsync ──────────────────────────────
+
+    [Fact]
+    public async Task GetAllByGroupAsync_ReturnsAllPersons()
+    {
+        var groupId = Guid.NewGuid();
+        var people = new List<Person>
+        {
+            new() { Id = Guid.NewGuid(), GroupId = groupId, FirstName = "Alice", LastName = "Smith",
+                     BirthDate = new DateOnly(2000, 1, 1), CreatedAtUtc = DateTime.UtcNow },
+            new() { Id = Guid.NewGuid(), GroupId = groupId, FirstName = "Bob", LastName = "Jones",
+                     BirthDate = new DateOnly(1995, 6, 15), CreatedAtUtc = DateTime.UtcNow },
+        };
+        _repoMock.Setup(r => r.GetByGroupIdAsync(groupId, It.IsAny<CancellationToken>()))
+                 .ReturnsAsync(people);
+
+        var result = await _sut.GetAllByGroupAsync(groupId, CancellationToken.None);
+
+        Assert.Equal(2, result.Count);
+    }
+
+    [Fact]
+    public async Task GetAllByGroupAsync_EmptyGroup_ReturnsEmpty()
+    {
+        _repoMock.Setup(r => r.GetByGroupIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+                 .ReturnsAsync(new List<Person>());
+
+        var result = await _sut.GetAllByGroupAsync(Guid.NewGuid(), CancellationToken.None);
+
+        Assert.Empty(result);
+    }
+
     // ── GetUpcomingBirthdaysAsync ──────────────────────
 
     [Fact]

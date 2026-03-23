@@ -37,6 +37,42 @@ public class PersonService : IPersonService
         return person;
     }
 
+    public async Task<Person> UpdatePersonAsync(UpdatePersonCommand command, CancellationToken ct)
+    {
+        var person = await _personRepo.GetByIdAsync(command.PersonId, ct)
+            ?? throw new KeyNotFoundException($"Person {command.PersonId} not found.");
+
+        if (person.GroupId != command.GroupId)
+            throw new KeyNotFoundException($"Person {command.PersonId} does not belong to group {command.GroupId}.");
+
+        ValidateFields(command.FirstName, command.LastName, command.PreferredName, command.BirthDate);
+
+        person.FirstName = command.FirstName.Trim();
+        person.LastName = command.LastName.Trim();
+        person.PreferredName = command.PreferredName?.Trim();
+        person.BirthDate = command.BirthDate;
+
+        if (command.RemoveImage)
+        {
+            person.ImageData = null;
+            person.ImageContentType = null;
+        }
+        else if (command.ImageData is not null)
+        {
+            person.ImageData = command.ImageData;
+            person.ImageContentType = command.ImageContentType;
+        }
+        // else: keep existing image unchanged
+
+        await _personRepo.SaveChangesAsync(ct);
+        return person;
+    }
+
+    public async Task<IReadOnlyList<Person>> GetAllByGroupAsync(Guid groupId, CancellationToken ct)
+    {
+        return await _personRepo.GetByGroupIdAsync(groupId, ct);
+    }
+
     public async Task<IReadOnlyList<BirthdayResult>> GetUpcomingBirthdaysAsync(Guid groupId, CancellationToken ct)
     {
         var members = await _personRepo.GetByGroupIdAsync(groupId, ct);
@@ -53,23 +89,26 @@ public class PersonService : IPersonService
     }
 
     private static void ValidateCommand(CreatePersonCommand command)
+        => ValidateFields(command.FirstName, command.LastName, command.PreferredName, command.BirthDate);
+
+    private static void ValidateFields(string firstName, string lastName, string? preferredName, DateOnly birthDate)
     {
-        if (!PersonValidator.IsValidName(command.FirstName))
-            throw new ArgumentException("First name must be between 2 and 100 characters.", nameof(command.FirstName));
+        if (!PersonValidator.IsValidName(firstName))
+            throw new ArgumentException("First name must be between 2 and 100 characters.", nameof(firstName));
 
-        if (!PersonValidator.IsValidName(command.LastName))
-            throw new ArgumentException("Last name must be between 2 and 100 characters.", nameof(command.LastName));
+        if (!PersonValidator.IsValidName(lastName))
+            throw new ArgumentException("Last name must be between 2 and 100 characters.", nameof(lastName));
 
-        if (command.PreferredName is not null && !PersonValidator.IsValidName(command.PreferredName, required: false))
-            throw new ArgumentException("Preferred name must be between 2 and 100 characters.", nameof(command.PreferredName));
+        if (preferredName is not null && !PersonValidator.IsValidName(preferredName, required: false))
+            throw new ArgumentException("Preferred name must be between 2 and 100 characters.", nameof(preferredName));
 
-        if (!PersonValidator.IsValidBirthDate(command.BirthDate))
-            throw new ArgumentException("Birth date must be in the past and no earlier than 1900.", nameof(command.BirthDate));
+        if (!PersonValidator.IsValidBirthDate(birthDate))
+            throw new ArgumentException("Birth date must be in the past and no earlier than 1900.", nameof(birthDate));
 
-        CheckProfanity(command.FirstName, "First name");
-        CheckProfanity(command.LastName, "Last name");
-        if (command.PreferredName is not null)
-            CheckProfanity(command.PreferredName, "Preferred name");
+        CheckProfanity(firstName, "First name");
+        CheckProfanity(lastName, "Last name");
+        if (preferredName is not null)
+            CheckProfanity(preferredName, "Preferred name");
     }
 
     private static void CheckProfanity(string value, string fieldName)

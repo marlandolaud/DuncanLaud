@@ -342,6 +342,242 @@ public class IntegrationTests : IClassFixture<IntegrationTests.TestAppFactory>
         Assert.Equal("Alice Smith", body![0].DisplayName);
     }
 
+    // ── GetPersons ────────────────────────────────────
+
+    [Fact]
+    public async Task GetPersons_ReturnsAllMembers()
+    {
+        using var client = CreateClient();
+        var groupId = Guid.NewGuid();
+        await client.PostAsJsonAsync("/api/group", new CreateGroupRequest(groupId, "List Test"));
+
+        using var form1 = new MultipartFormDataContent
+        {
+            { new StringContent("Alice"), "firstName" },
+            { new StringContent("Smith"), "lastName" },
+            { new StringContent("2000-01-15"), "birthDate" }
+        };
+        using var form2 = new MultipartFormDataContent
+        {
+            { new StringContent("Bob"), "firstName" },
+            { new StringContent("Jones"), "lastName" },
+            { new StringContent("1995-06-15"), "birthDate" }
+        };
+
+        await client.PostAsync($"/api/group/{groupId}/person", form1);
+        await client.PostAsync($"/api/group/{groupId}/person", form2);
+
+        var response = await client.GetAsync($"/api/group/{groupId}/persons");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var body = await response.Content.ReadFromJsonAsync<List<PersonResponse>>(JsonOpts);
+        Assert.Equal(2, body!.Count);
+    }
+
+    [Fact]
+    public async Task GetPersons_GroupNotFound_Returns404()
+    {
+        using var client = CreateClient();
+        var response = await client.GetAsync($"/api/group/{Guid.NewGuid()}/persons");
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
+    // ── GetPerson ─────────────────────────────────────
+
+    [Fact]
+    public async Task GetPerson_Exists_Returns200()
+    {
+        using var client = CreateClient();
+        var groupId = Guid.NewGuid();
+        await client.PostAsJsonAsync("/api/group", new CreateGroupRequest(groupId, "Get Person Test"));
+
+        using var form = new MultipartFormDataContent
+        {
+            { new StringContent("Alice"), "firstName" },
+            { new StringContent("Smith"), "lastName" },
+            { new StringContent("Bobby"), "preferredName" },
+            { new StringContent("2000-01-15"), "birthDate" }
+        };
+        var addResponse = await client.PostAsync($"/api/group/{groupId}/person", form);
+        var person = await addResponse.Content.ReadFromJsonAsync<PersonResponse>(JsonOpts);
+
+        var response = await client.GetAsync($"/api/group/{groupId}/person/{person!.Id}");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var body = await response.Content.ReadFromJsonAsync<PersonResponse>(JsonOpts);
+        Assert.Equal("Alice", body!.FirstName);
+        Assert.Equal("Bobby", body.PreferredName);
+    }
+
+    [Fact]
+    public async Task GetPerson_NotFound_Returns404()
+    {
+        using var client = CreateClient();
+        var groupId = Guid.NewGuid();
+        await client.PostAsJsonAsync("/api/group", new CreateGroupRequest(groupId, "404 Person Test"));
+
+        var response = await client.GetAsync($"/api/group/{groupId}/person/{Guid.NewGuid()}");
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
+    // ── UpdatePerson ──────────────────────────────────
+
+    [Fact]
+    public async Task UpdatePerson_Valid_Returns200WithUpdatedData()
+    {
+        using var client = CreateClient();
+        var groupId = Guid.NewGuid();
+        await client.PostAsJsonAsync("/api/group", new CreateGroupRequest(groupId, "Update Test"));
+
+        using var addForm = new MultipartFormDataContent
+        {
+            { new StringContent("Alice"), "firstName" },
+            { new StringContent("Smith"), "lastName" },
+            { new StringContent("2000-01-15"), "birthDate" }
+        };
+        var addResponse = await client.PostAsync($"/api/group/{groupId}/person", addForm);
+        var person = await addResponse.Content.ReadFromJsonAsync<PersonResponse>(JsonOpts);
+
+        using var updateForm = new MultipartFormDataContent
+        {
+            { new StringContent("Bob"), "firstName" },
+            { new StringContent("Jones"), "lastName" },
+            { new StringContent("Bobby"), "preferredName" },
+            { new StringContent("1995-06-15"), "birthDate" },
+            { new StringContent("false"), "removeImage" }
+        };
+
+        var response = await client.PutAsync($"/api/group/{groupId}/person/{person!.Id}", updateForm);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var body = await response.Content.ReadFromJsonAsync<PersonResponse>(JsonOpts);
+        Assert.Equal("Bob", body!.FirstName);
+        Assert.Equal("Jones", body.LastName);
+        Assert.Equal("Bobby", body.PreferredName);
+    }
+
+    [Fact]
+    public async Task UpdatePerson_WithNewImage_ReplacesImage()
+    {
+        using var client = CreateClient();
+        var groupId = Guid.NewGuid();
+        await client.PostAsJsonAsync("/api/group", new CreateGroupRequest(groupId, "Image Update"));
+
+        using var addForm = new MultipartFormDataContent
+        {
+            { new StringContent("Alice"), "firstName" },
+            { new StringContent("Smith"), "lastName" },
+            { new StringContent("2000-01-15"), "birthDate" }
+        };
+        var addResponse = await client.PostAsync($"/api/group/{groupId}/person", addForm);
+        var person = await addResponse.Content.ReadFromJsonAsync<PersonResponse>(JsonOpts);
+        Assert.False(person!.HasImage);
+
+        var imageBytes = new byte[] { 0x89, 0x50, 0x4E, 0x47 };
+        var imageContent = new ByteArrayContent(imageBytes);
+        imageContent.Headers.ContentType = new MediaTypeHeaderValue("image/png");
+
+        using var updateForm = new MultipartFormDataContent
+        {
+            { new StringContent("Alice"), "firstName" },
+            { new StringContent("Smith"), "lastName" },
+            { new StringContent("2000-01-15"), "birthDate" },
+            { new StringContent("false"), "removeImage" },
+            { imageContent, "image", "photo.png" }
+        };
+
+        var response = await client.PutAsync($"/api/group/{groupId}/person/{person.Id}", updateForm);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var body = await response.Content.ReadFromJsonAsync<PersonResponse>(JsonOpts);
+        Assert.True(body!.HasImage);
+
+        // Verify image is served
+        var imgResponse = await client.GetAsync($"/api/group/{groupId}/person/{person.Id}/image");
+        Assert.Equal(HttpStatusCode.OK, imgResponse.StatusCode);
+        var imgBody = await imgResponse.Content.ReadAsByteArrayAsync();
+        Assert.Equal(imageBytes, imgBody);
+    }
+
+    [Fact]
+    public async Task UpdatePerson_RemoveImage_ClearsImage()
+    {
+        using var client = CreateClient();
+        var groupId = Guid.NewGuid();
+        await client.PostAsJsonAsync("/api/group", new CreateGroupRequest(groupId, "Remove Image"));
+
+        var imageBytes = new byte[] { 0xFF, 0xD8 };
+        var imageContent = new ByteArrayContent(imageBytes);
+        imageContent.Headers.ContentType = new MediaTypeHeaderValue("image/jpeg");
+
+        using var addForm = new MultipartFormDataContent
+        {
+            { new StringContent("Alice"), "firstName" },
+            { new StringContent("Smith"), "lastName" },
+            { new StringContent("2000-01-15"), "birthDate" },
+            { imageContent, "image", "photo.jpg" }
+        };
+        var addResponse = await client.PostAsync($"/api/group/{groupId}/person", addForm);
+        var person = await addResponse.Content.ReadFromJsonAsync<PersonResponse>(JsonOpts);
+        Assert.True(person!.HasImage);
+
+        using var updateForm = new MultipartFormDataContent
+        {
+            { new StringContent("Alice"), "firstName" },
+            { new StringContent("Smith"), "lastName" },
+            { new StringContent("2000-01-15"), "birthDate" },
+            { new StringContent("true"), "removeImage" }
+        };
+
+        var response = await client.PutAsync($"/api/group/{groupId}/person/{person.Id}", updateForm);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var body = await response.Content.ReadFromJsonAsync<PersonResponse>(JsonOpts);
+        Assert.False(body!.HasImage);
+
+        // Verify image is gone
+        var imgResponse = await client.GetAsync($"/api/group/{groupId}/person/{person.Id}/image");
+        Assert.Equal(HttpStatusCode.NotFound, imgResponse.StatusCode);
+    }
+
+    [Fact]
+    public async Task UpdatePerson_GroupNotFound_Returns404()
+    {
+        using var client = CreateClient();
+        using var form = new MultipartFormDataContent
+        {
+            { new StringContent("Alice"), "firstName" },
+            { new StringContent("Smith"), "lastName" },
+            { new StringContent("2000-01-15"), "birthDate" },
+            { new StringContent("false"), "removeImage" }
+        };
+
+        var response = await client.PutAsync($"/api/group/{Guid.NewGuid()}/person/{Guid.NewGuid()}", form);
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task UpdatePerson_PersonNotFound_Returns404()
+    {
+        using var client = CreateClient();
+        var groupId = Guid.NewGuid();
+        await client.PostAsJsonAsync("/api/group", new CreateGroupRequest(groupId, "Missing Person"));
+
+        using var form = new MultipartFormDataContent
+        {
+            { new StringContent("Alice"), "firstName" },
+            { new StringContent("Smith"), "lastName" },
+            { new StringContent("2000-01-15"), "birthDate" },
+            { new StringContent("false"), "removeImage" }
+        };
+
+        var response = await client.PutAsync($"/api/group/{groupId}/person/{Guid.NewGuid()}", form);
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
     // ── Full flow ──────────────────────────────────────
 
     [Fact]
