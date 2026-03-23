@@ -25,7 +25,11 @@ jobs:
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '6'
+          dotnet-version: '10'
+
+      - name: Inject connection string
+        run: |
+          sed -i 's|"DefaultConnection": ""|"DefaultConnection": "${{ secrets.DB_CONNECTIONSTRING }}"|g' DuncanLaud.WebUI/appsettings.Production.json
 
       - name: Build the application
         run: dotnet build --configuration Release
