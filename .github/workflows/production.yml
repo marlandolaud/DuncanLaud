@@ -6,6 +6,8 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+      ASPNETCORE_ENVIRONMENT: Production
     steps:
 
       - name: Upgrade & Update
@@ -36,6 +38,10 @@ jobs:
 
       - name: Publish the application
         run: dotnet publish DuncanLaud.WebUI/DuncanLaud.WebUI.csproj --configuration Release --output ./publish --runtime win-x86 --self-contained false -p:PublishTrimmed=false -p:PublishSingleFile=false
+
+      - name: Set ASPNETCORE_ENVIRONMENT in web.config
+        run: |
+          sed -i 's|<environmentVariables />|<environmentVariables><environmentVariable name="ASPNETCORE_ENVIRONMENT" value="Production" /></environmentVariables>|g' ./publish/web.config
 
       - name: Deploy via FTP
         run: |
