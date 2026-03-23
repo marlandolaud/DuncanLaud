@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" fill="none">
+  <!-- Background circle -->
+  <circle cx="60" cy="60" r="60" fill="#f0e9d8"/>
+
+  <!-- Head -->
+  <circle cx="60" cy="44" r="22" fill="#d4a96a" stroke="#b8885a" stroke-width="1.5"/>
+
+  <!-- Eyes -->
+  <ellipse cx="52" cy="42" rx="3.5" ry="4" fill="#4a3520"/>
+  <ellipse cx="68" cy="42" rx="3.5" ry="4" fill="#4a3520"/>
+
+  <!-- Eye shine -->
+  <circle cx="53.5" cy="40.5" r="1.2" fill="white"/>
+  <circle cx="69.5" cy="40.5" r="1.2" fill="white"/>
+
+  <!-- Smile -->
+  <path d="M50 51 Q60 62 70 51" stroke="#7a4a2a" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+
+  <!-- Cheeks -->
+  <circle cx="44" cy="50" r="5" fill="#e8a080" opacity="0.4"/>
+  <circle cx="76" cy="50" r="5" fill="#e8a080" opacity="0.4"/>
+
+  <!-- Neck -->
+  <rect x="54" y="64" width="12" height="10" rx="4" fill="#d4a96a"/>
+
+  <!-- Body / shoulders -->
+  <path d="M24 105 Q24 82 60 80 Q96 82 96 105 Z" fill="#8b6b9e"/>
+</svg>

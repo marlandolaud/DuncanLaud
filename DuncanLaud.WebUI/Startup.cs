@@ -1,7 +1,13 @@
 using System.Collections.Generic;
 using System.IO;
+using AspNetCoreRateLimit;
+using DuncanLaud.Infrastructure.Data;
+using DuncanLaud.Infrastructure.Interfaces;
+using DuncanLaud.Infrastructure.Repositories;
+using DuncanLaud.Infrastructure.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
@@ -20,17 +26,71 @@ namespace DuncanLaud.WebUI
 
         public void ConfigureServices(IServiceCollection services)
         {
+            // MVC Controllers
+            services.AddControllers();
+
+            // Database
+            services.AddDbContext<AppDbContext>(options =>
+                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+
+            // Repositories
+            services.AddScoped<IGroupRepository, GroupRepository>();
+            services.AddScoped<IPersonRepository, PersonRepository>();
+
+            // Domain/Application Services
+            services.AddScoped<IGroupService, GroupService>();
+            services.AddScoped<IPersonService, PersonService>();
+
+            // Rate Limiting (OWASP A07)
+            services.AddMemoryCache();
+            services.Configure<IpRateLimitOptions>(Configuration.GetSection("IpRateLimiting"));
+            services.AddSingleton<IIpPolicyStore, MemoryCacheIpPolicyStore>();
+            services.AddSingleton<IRateLimitCounterStore, MemoryCacheRateLimitCounterStore>();
+            services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
+            services.AddSingleton<IProcessingStrategy, AsyncKeyLockProcessingStrategy>();
+            services.AddInMemoryRateLimiting();
+
             services.AddRouting();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            // Auto-apply EF Core migrations on startup so the schema is always current
+            using (var scope = app.ApplicationServices.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                db.Database.Migrate();
+            }
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
+            else
+            {
+                app.UseHsts();
+            }
 
-            app.UseHttpsRedirection();
+            // Security headers (OWASP A05)
+            app.Use(async (ctx, next) =>
+            {
+                ctx.Response.Headers["X-Content-Type-Options"] = "nosniff";
+                ctx.Response.Headers["X-Frame-Options"] = "DENY";
+                ctx.Response.Headers["Referrer-Policy"] = "strict-origin-when-cross-origin";
+                ctx.Response.Headers["X-XSS-Protection"] = "0";
+                ctx.Response.Headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()";
+                // Remove server identification header
+                ctx.Response.Headers.Remove("Server");
+                await next();
+            });
+
+            if (!env.IsDevelopment())
+            {
+                app.UseHttpsRedirection();
+            }
+
+            // Rate Limiting
+            app.UseIpRateLimiting();
 
             // Development: React files live in ../duncanlaud-react/dist after running
             //   "npm run build" in the react project.
@@ -52,23 +112,20 @@ namespace DuncanLaud.WebUI
                     fileProviders.Add(new PhysicalFileProvider(env.WebRootPath));
                 }
 
-                // Set the primary web root to the React dist folder so MapFallbackToFile
-                // can find index.html, then composite-in wwwroot for images etc.
                 env.WebRootPath = reactDistPath;
                 env.WebRootFileProvider = new CompositeFileProvider(fileProviders);
             }
 
-            // Serve index.html for root requests
             app.UseDefaultFiles();
-
-            // Serve static files (React bundle + wwwroot/img)
             app.UseStaticFiles();
-
             app.UseRouting();
 
             app.UseEndpoints(endpoints =>
             {
-                // Fall back to index.html for any route React Router handles (/about, /book/*)
+                // API controllers must be mapped BEFORE the SPA fallback
+                endpoints.MapControllers();
+
+                // Fall back to index.html for any route React Router handles
                 endpoints.MapFallbackToFile("index.html");
             });
         }

@@ -1,12 +1,14 @@
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Outlet, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 import Navbar from './components/Navbar';
 import Splash from './components/Splash';
 import Sidebar from './components/Sidebar';
 import Footer from './components/Footer';
+import GroupLayout from './components/GroupLayout';
 import HomePage from './pages/HomePage';
 import AboutPage from './pages/AboutPage';
 import BookPage from './pages/BookPage';
+import MyGroupPage from './pages/group/MyGroupPage';
 
 // Scroll to top on route change
 function ScrollToTop() {
@@ -26,12 +28,7 @@ function Layout() {
       <main className="site-main" id="main-content">
         <div className="site-main__container">
           <div className="site-main__content-area">
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/about" element={<AboutPage />} />
-              <Route path="/book/:bookId" element={<BookPage />} />
-              <Route path="*" element={<HomePage />} />
-            </Routes>
+            <Outlet />
           </div>
 
           <div className="site-main__sidebar-area">
@@ -49,7 +46,19 @@ export default function App() {
   return (
     <BrowserRouter>
       <ScrollToTop />
-      <Layout />
+      <Routes>
+        <Route element={<Layout />}>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/book/:bookId" element={<BookPage />} />
+          <Route path="*" element={<HomePage />} />
+        </Route>
+
+        <Route element={<GroupLayout />}>
+          <Route path="/mygroup" element={<MyGroupPage />} />
+          <Route path="/mygroup/:groupId" element={<MyGroupPage />} />
+        </Route>
+      </Routes>
     </BrowserRouter>
   );
 }
