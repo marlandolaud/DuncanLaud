@@ -40,6 +40,17 @@ public class GroupControllerTests
         Assert.Equal(0, response.MemberCount);
     }
 
+    [Fact]
+    public async Task CreateGroup_ProfaneName_Returns400()
+    {
+        _groupServiceMock.Setup(s => s.GetOrCreateGroupAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                         .ThrowsAsync(new ArgumentException("Group name contains inappropriate content."));
+
+        var result = await _sut.CreateGroup(new CreateGroupRequest(Guid.NewGuid(), "badword"), CancellationToken.None);
+
+        Assert.IsType<BadRequestObjectResult>(result);
+    }
+
     // ── GetGroup ───────────────────────────────────────
 
     [Fact]

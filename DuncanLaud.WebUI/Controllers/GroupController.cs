@@ -33,10 +33,17 @@ public class GroupController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> CreateGroup([FromBody] CreateGroupRequest dto, CancellationToken ct)
     {
-        var group = await _groupService.GetOrCreateGroupAsync(dto.GroupId, dto.Name, ct);
+        try
+        {
+            var group = await _groupService.GetOrCreateGroupAsync(dto.GroupId, dto.Name, ct);
 
-        var response = new GroupResponse(group.Id, group.Name, group.CreatedAtUtc, group.Members.Count);
-        return CreatedAtAction(nameof(GetGroup), new { groupId = group.Id }, response);
+            var response = new GroupResponse(group.Id, group.Name, group.CreatedAtUtc, group.Members.Count);
+            return CreatedAtAction(nameof(GetGroup), new { groupId = group.Id }, response);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
     }
 
     [HttpGet("{groupId:guid}")]
