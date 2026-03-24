@@ -52,6 +52,12 @@ namespace DuncanLaud.WebUI
             services.AddInMemoryRateLimiting();
 
             services.AddRouting();
+
+            services.AddEndpointsApiExplorer();
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new() { Title = "DuncanLaud API", Version = "v1" });
+            });
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -80,6 +86,11 @@ namespace DuncanLaud.WebUI
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                app.UseSwagger();
+                app.UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "DuncanLaud API v1");
+                });
             }
             else
             {

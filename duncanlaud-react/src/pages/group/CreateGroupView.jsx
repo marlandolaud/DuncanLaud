@@ -54,7 +54,7 @@ export default function CreateGroupView() {
             required
             autoFocus
           />
-          <p className="group-create__hint">Letters and numbers only (A–Z, a–z, 0–9).</p>
+          <p className="group-create__hint">Letters and numbers only</p>
           {error && <p className="group-create__error" role="alert">{error}</p>}
 
           <button className="group-create__btn" type="submit">
