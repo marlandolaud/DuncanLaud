@@ -32,13 +32,13 @@ public class IntegrationTests : IClassFixture<IntegrationTests.TestAppFactory>
     {
         using var client = CreateClient();
         var groupId = Guid.NewGuid();
-        var response = await client.PostAsJsonAsync("/api/group", new CreateGroupRequest(groupId, "Test Family"));
+        var response = await client.PostAsJsonAsync("/api/group", new CreateGroupRequest(groupId, "TestFamily"));
 
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         var body = await response.Content.ReadFromJsonAsync<GroupResponse>(JsonOpts);
         Assert.NotNull(body);
         Assert.Equal(groupId, body!.Id);
-        Assert.Equal("Test Family", body.Name);
+        Assert.Equal("TestFamily", body.Name);
         Assert.Equal(0, body.MemberCount);
     }
 
@@ -47,12 +47,12 @@ public class IntegrationTests : IClassFixture<IntegrationTests.TestAppFactory>
     {
         using var client = CreateClient();
         var groupId = Guid.NewGuid();
-        await client.PostAsJsonAsync("/api/group", new CreateGroupRequest(groupId, "First Name"));
-        var response = await client.PostAsJsonAsync("/api/group", new CreateGroupRequest(groupId, "Second Name"));
+        await client.PostAsJsonAsync("/api/group", new CreateGroupRequest(groupId, "FirstGroup"));
+        var response = await client.PostAsJsonAsync("/api/group", new CreateGroupRequest(groupId, "SecondGroup"));
 
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         var body = await response.Content.ReadFromJsonAsync<GroupResponse>(JsonOpts);
-        Assert.Equal("First Name", body!.Name);
+        Assert.Equal("FirstGroup", body!.Name);
     }
 
     // ── GetGroup ───────────────────────────────────────
@@ -62,13 +62,13 @@ public class IntegrationTests : IClassFixture<IntegrationTests.TestAppFactory>
     {
         using var client = CreateClient();
         var groupId = Guid.NewGuid();
-        await client.PostAsJsonAsync("/api/group", new CreateGroupRequest(groupId, "Get Test"));
+        await client.PostAsJsonAsync("/api/group", new CreateGroupRequest(groupId, "GetTest"));
 
         var response = await client.GetAsync($"/api/group/{groupId}");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var body = await response.Content.ReadFromJsonAsync<GroupResponse>(JsonOpts);
-        Assert.Equal("Get Test", body!.Name);
+        Assert.Equal("GetTest", body!.Name);
     }
 
     [Fact]

@@ -49,6 +49,7 @@ public class PersonValidatorTests
     [Fact]
     public void IsValidName_WithLeadingTrailingSpaces_TrimsBeforeCheck()
     {
+        // Sanitize strips spaces before IsValidName is called; IsValidName still trims internally for the length check.
         // "  Ab  " trimmed = "Ab" (length 2) → valid
         Assert.True(PersonValidator.IsValidName("  Ab  "));
     }
@@ -68,16 +69,52 @@ public class PersonValidatorTests
     }
 
     [Fact]
-    public void IsValidName_SpecialCharacters_Valid()
-        => Assert.True(PersonValidator.IsValidName("O'Brien"));
+    public void IsValidName_SpecialCharacters_ReturnsFalse()
+        => Assert.False(PersonValidator.IsValidName("O'Brien"));
 
     [Fact]
     public void IsValidName_Numbers_Valid()
         => Assert.True(PersonValidator.IsValidName("Abc123"));
 
     [Fact]
-    public void IsValidName_Unicode_Valid()
-        => Assert.True(PersonValidator.IsValidName("José"));
+    public void IsValidName_Unicode_ReturnsFalse()
+        => Assert.False(PersonValidator.IsValidName("José"));
+
+    [Fact]
+    public void IsValidName_NameWithSpaces_ReturnsFalse()
+        => Assert.False(PersonValidator.IsValidName("Smith Family"));
+
+    [Fact]
+    public void IsValidName_NameWithHyphen_ReturnsFalse()
+        => Assert.False(PersonValidator.IsValidName("Mary-Jane"));
+
+    [Fact]
+    public void IsValidName_PureAlphanumeric_ReturnsTrue()
+        => Assert.True(PersonValidator.IsValidName("SmithFamily123"));
+
+    [Fact]
+    public void Sanitize_NullInput_ReturnsEmpty()
+        => Assert.Equal("", PersonValidator.Sanitize(null));
+
+    [Fact]
+    public void Sanitize_EmptyInput_ReturnsEmpty()
+        => Assert.Equal("", PersonValidator.Sanitize(""));
+
+    [Fact]
+    public void Sanitize_PureAlphanumeric_ReturnsUnchanged()
+        => Assert.Equal("Alice123", PersonValidator.Sanitize("Alice123"));
+
+    [Fact]
+    public void Sanitize_RemovesSpaces()
+        => Assert.Equal("SmithFamily", PersonValidator.Sanitize("Smith Family"));
+
+    [Fact]
+    public void Sanitize_RemovesSpecialChars()
+        => Assert.Equal("OBrien", PersonValidator.Sanitize("O'Brien!"));
+
+    [Fact]
+    public void Sanitize_RemovesUnicode()
+        => Assert.Equal("Jos", PersonValidator.Sanitize("José"));
 
     // ── IsValidBirthDate ───────────────────────────────
 

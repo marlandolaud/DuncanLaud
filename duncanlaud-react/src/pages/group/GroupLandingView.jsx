@@ -96,12 +96,27 @@ export default function GroupLandingView({ groupId }) {
     setView(STATE.VIEW_MEMBERS);
   }
 
-  function copyLink() {
+  async function copyLink() {
     const url = window.location.href;
-    navigator.clipboard?.writeText(url).then(() => {
+    try {
+      if (navigator.clipboard) {
+        await navigator.clipboard.writeText(url);
+      } else {
+        // Fallback for non-secure contexts
+        const el = document.createElement('textarea');
+        el.value = url;
+        el.style.cssText = 'position:fixed;top:0;left:0;opacity:0';
+        document.body.appendChild(el);
+        el.focus();
+        el.select();
+        document.execCommand('copy');
+        document.body.removeChild(el);
+      }
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
-    });
+    } catch {
+      // clipboard write failed silently
+    }
   }
 
   if (view === STATE.LOADING) {

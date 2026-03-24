@@ -63,18 +63,19 @@ public class GroupServiceTests
         _repoMock.Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>()))
                  .ReturnsAsync((Group?)null);
 
-        var result = await _sut.GetOrCreateGroupAsync(id, "  Smith Family  ", CancellationToken.None);
+        var result = await _sut.GetOrCreateGroupAsync(id, "SmithFamily", CancellationToken.None);
 
         Assert.Equal(id, result.Id);
-        Assert.Equal("Smith Family", result.Name); // trimmed
+        Assert.Equal("SmithFamily", result.Name);
         Assert.True(result.CreatedAtUtc <= DateTime.UtcNow);
         _repoMock.Verify(r => r.AddAsync(It.IsAny<Group>(), It.IsAny<CancellationToken>()), Times.Once);
         _repoMock.Verify(r => r.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
-    public async Task GetOrCreateGroupAsync_TrimsName()
+    public async Task GetOrCreateGroupAsync_SanitizesName()
     {
+        // "  test  " sanitized → "test"
         _repoMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
                  .ReturnsAsync((Group?)null);
 
@@ -158,5 +159,29 @@ public class GroupServiceTests
         var result = await _sut.GetOrCreateGroupAsync(id, "shit", CancellationToken.None);
 
         Assert.Equal("Existing", result.Name);
+    }
+
+    [Fact]
+    public async Task GetOrCreateGroupAsync_NameWithSpecialCharsOnly_Throws()
+    {
+        // "!@#$%" sanitized to "" → throws "required"
+        _repoMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+                 .ReturnsAsync((Group?)null);
+
+        var ex = await Assert.ThrowsAsync<ArgumentException>(
+            () => _sut.GetOrCreateGroupAsync(Guid.NewGuid(), "!@#$%", CancellationToken.None));
+
+        Assert.Contains("required", ex.Message);
+    }
+
+    [Fact]
+    public async Task GetOrCreateGroupAsync_AlphanumericName_Succeeds()
+    {
+        _repoMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+                 .ReturnsAsync((Group?)null);
+
+        var result = await _sut.GetOrCreateGroupAsync(Guid.NewGuid(), "BirthdayGroup2025", CancellationToken.None);
+
+        Assert.Equal("BirthdayGroup2025", result.Name);
     }
 }

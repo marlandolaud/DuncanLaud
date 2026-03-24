@@ -42,6 +42,28 @@ jobs:
       - name: Build the application
         run: dotnet build --configuration Release
 
+      - name: Run tests with coverage
+        run: dotnet test --configuration Release --settings coverlet.runsettings --results-directory ./TestResults
+
+      - name: Merge coverage reports
+        run: |
+          dotnet tool install -g dotnet-reportgenerator-globaltool || true
+          reportgenerator -reports:"./TestResults/**/coverage.cobertura.xml" -targetdir:"./CoverageMerged" -reporttypes:Cobertura
+
+      - name: Enforce 95% combined line coverage
+        run: |
+          python3 - <<'EOF'
+          import xml.etree.ElementTree as ET, sys
+          tree = ET.parse('./CoverageMerged/Cobertura.xml')
+          rate = float(tree.getroot().get('line-rate', 0))
+          pct = rate * 100
+          print(f"Combined line coverage: {pct:.1f}%")
+          if pct < 95.0:
+              print(f"FAIL: {pct:.1f}% is below the 95% threshold.", file=sys.stderr)
+              sys.exit(1)
+          print("PASS: Coverage threshold met.")
+          EOF
+
       - name: Publish the application
         run: dotnet publish DuncanLaud.WebUI/DuncanLaud.WebUI.csproj --configuration Release --output ./publish --runtime win-x86 --self-contained false -p:PublishTrimmed=false -p:PublishSingleFile=false
 

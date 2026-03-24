@@ -46,8 +46,9 @@ public class PersonServiceTests
     }
 
     [Fact]
-    public async Task AddPersonAsync_TrimsNames()
+    public async Task AddPersonAsync_SanitizesNames()
     {
+        // "  Bob  " sanitizes to "Bob", "  Jones  " to "Jones"
         var cmd = ValidCommand(firstName: "  Bob  ", lastName: "  Jones  ");
         var result = await _sut.AddPersonAsync(cmd, CancellationToken.None);
 
@@ -56,8 +57,9 @@ public class PersonServiceTests
     }
 
     [Fact]
-    public async Task AddPersonAsync_TrimsPreferredName()
+    public async Task AddPersonAsync_SanitizesPreferredName()
     {
+        // "  Bobby  " sanitizes to "Bobby"
         var cmd = ValidCommand(preferredName: "  Bobby  ");
         var result = await _sut.AddPersonAsync(cmd, CancellationToken.None);
 
@@ -174,6 +176,26 @@ public class PersonServiceTests
         var cmd = ValidCommand(birthDate: new DateOnly(1899, 12, 31));
         var ex = await Assert.ThrowsAsync<ArgumentException>(() => _sut.AddPersonAsync(cmd, CancellationToken.None));
         Assert.Contains("Birth date", ex.Message);
+    }
+
+    [Fact]
+    public async Task AddPersonAsync_SpecialCharsOnlyFirstName_Throws()
+    {
+        // "!@#$" sanitized to "" → throws "First name"
+        var cmd = ValidCommand(firstName: "!@#$");
+        var ex = await Assert.ThrowsAsync<ArgumentException>(() => _sut.AddPersonAsync(cmd, CancellationToken.None));
+        Assert.Contains("First name", ex.Message);
+    }
+
+    [Fact]
+    public async Task AddPersonAsync_NamesWithEmbeddedSpecialChars_SanitizesBeforeStore()
+    {
+        // "Al!ice" → "Alice", "Sm@ith" → "Smith"
+        var cmd = ValidCommand(firstName: "Al!ice", lastName: "Sm@ith");
+        var result = await _sut.AddPersonAsync(cmd, CancellationToken.None);
+
+        Assert.Equal("Alice", result.FirstName);
+        Assert.Equal("Smith", result.LastName);
     }
 
     // ── UpdatePersonAsync ──────────────────────────────
@@ -321,6 +343,29 @@ public class PersonServiceTests
 
         Assert.Equal(existingImg, result.ImageData);
         Assert.Equal("image/jpeg", result.ImageContentType);
+    }
+
+    [Fact]
+    public async Task UpdatePersonAsync_SanitizesNamesOnUpdate()
+    {
+        // "B0b!" → "B0b", "Jon3s#" → "Jon3s"
+        var groupId = Guid.NewGuid();
+        var personId = Guid.NewGuid();
+        var existing = new Person
+        {
+            Id = personId, GroupId = groupId, FirstName = "Alice", LastName = "Smith",
+            BirthDate = new DateOnly(2000, 1, 1), CreatedAtUtc = DateTime.UtcNow
+        };
+        _repoMock.Setup(r => r.GetByIdAsync(personId, It.IsAny<CancellationToken>()))
+                 .ReturnsAsync(existing);
+
+        var cmd = new UpdatePersonCommand(personId, groupId, "B0b!", "Jon3s#", null,
+            new DateOnly(2000, 1, 1), null, null, false);
+
+        var result = await _sut.UpdatePersonAsync(cmd, CancellationToken.None);
+
+        Assert.Equal("B0b", result.FirstName);
+        Assert.Equal("Jon3s", result.LastName);
     }
 
     // ── GetAllByGroupAsync ──────────────────────────────
