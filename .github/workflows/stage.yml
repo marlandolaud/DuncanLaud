@@ -5,11 +5,13 @@ on:
       - 'feature/**'
 
   pull_request:
-    types: [opened, reopened]
+    types: [opened, reopened, synchronize]
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+      ASPNETCORE_ENVIRONMENT: Staging
     steps:
 
       - name: Upgrade & Update
@@ -29,13 +31,54 @@ jobs:
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '6'
+          dotnet-version: '10'
+
+      - name: Inject connection string
+        run: |
+          sed -i 's|"DefaultConnection": ""|"DefaultConnection": "${{ secrets.DB_CONNECTIONSTRING }}"|g' DuncanLaud.WebUI/appsettings.json
+          sed -i 's|"DefaultConnection": ""|"DefaultConnection": "${{ secrets.DB_CONNECTIONSTRING }}"|g' DuncanLaud.WebUI/appsettings.Staging.json
+          sed -i 's|"DefaultConnection": ""|"DefaultConnection": "${{ secrets.DB_CONNECTIONSTRING }}"|g' DuncanLaud.WebUI/appsettings.Production.json
 
       - name: Build the application
         run: dotnet build --configuration Release
 
+      - name: Run tests with coverage
+        run: dotnet test --configuration Release --settings coverlet.runsettings --results-directory ./TestResults
+
+      - name: Merge coverage reports
+        run: |
+          dotnet tool install -g dotnet-reportgenerator-globaltool || true
+          reportgenerator -reports:"./TestResults/**/coverage.cobertura.xml" -targetdir:"./CoverageMerged" -reporttypes:Cobertura
+
+      - name: Enforce 95% combined line coverage
+        run: |
+          python3 - <<'EOF'
+          import xml.etree.ElementTree as ET, sys
+          tree = ET.parse('./CoverageMerged/Cobertura.xml')
+          rate = float(tree.getroot().get('line-rate', 0))
+          pct = rate * 100
+          print(f"Combined line coverage: {pct:.1f}%")
+          if pct < 95.0:
+              print(f"FAIL: {pct:.1f}% is below the 95% threshold.", file=sys.stderr)
+              sys.exit(1)
+          print("PASS: Coverage threshold met.")
+          EOF
+
       - name: Publish the application
         run: dotnet publish DuncanLaud.WebUI/DuncanLaud.WebUI.csproj --configuration Release --output ./publish --runtime win-x86 --self-contained false -p:PublishTrimmed=false -p:PublishSingleFile=false
+
+      - name: Set ASPNETCORE_ENVIRONMENT in web.config
+        run: |
+          python3 - <<'EOF'
+          import re
+          with open('./publish/web.config', 'r') as f:
+              content = f.read()
+          env_block = '<environmentVariables><environmentVariable name="ASPNETCORE_ENVIRONMENT" value="Staging" /></environmentVariables>'
+          # Convert self-closing <aspNetCore ... /> to <aspNetCore ...>{env_block}</aspNetCore>
+          content = re.sub(r'(<aspNetCore\b[^>]*?)\s*/>', r'\1>' + env_block + '</aspNetCore>', content)
+          with open('./publish/web.config', 'w') as f:
+              f.write(content)
+          EOF
 
       - name: Deploy via FTP
         run: |

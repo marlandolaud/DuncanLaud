@@ -1,0 +1,22 @@
+# Debug Dockerfile — uses SDK image with dotnet watch for hot reload
+FROM mcr.microsoft.com/dotnet/sdk:10.0
+
+WORKDIR /src
+
+# Copy project files for restore
+COPY DuncanLaud.WebUI/DuncanLaud.WebUI.csproj DuncanLaud.WebUI/
+COPY DuncanLaud.Domain/DuncanLaud.Domain.csproj DuncanLaud.Domain/
+COPY DuncanLaud.Infrastructure/DuncanLaud.Infrastructure.csproj DuncanLaud.Infrastructure/
+COPY DuncanLaud.DTOs/DuncanLaud.DTOs.csproj DuncanLaud.DTOs/
+
+RUN dotnet restore DuncanLaud.WebUI/DuncanLaud.WebUI.csproj
+
+# Copy all source (volume mounts override at runtime for hot reload)
+COPY DuncanLaud.WebUI/ DuncanLaud.WebUI/
+COPY DuncanLaud.Domain/ DuncanLaud.Domain/
+COPY DuncanLaud.Infrastructure/ DuncanLaud.Infrastructure/
+COPY DuncanLaud.DTOs/ DuncanLaud.DTOs/
+
+EXPOSE 5000 5001
+
+ENTRYPOINT ["dotnet", "watch", "run", "--project", "DuncanLaud.WebUI", "--no-launch-profile"]

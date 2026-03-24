@@ -6,6 +6,8 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+      ASPNETCORE_ENVIRONMENT: Production
     steps:
 
       - name: Upgrade & Update
@@ -25,13 +27,30 @@ jobs:
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '6'
+          dotnet-version: '10'
+
+      - name: Inject connection string
+        run: |
+          sed -i 's|"DefaultConnection": ""|"DefaultConnection": "${{ secrets.DB_CONNECTIONSTRING }}"|g' DuncanLaud.WebUI/appsettings.Production.json
 
       - name: Build the application
         run: dotnet build --configuration Release
 
       - name: Publish the application
         run: dotnet publish DuncanLaud.WebUI/DuncanLaud.WebUI.csproj --configuration Release --output ./publish --runtime win-x86 --self-contained false -p:PublishTrimmed=false -p:PublishSingleFile=false
+
+      - name: Set ASPNETCORE_ENVIRONMENT in web.config
+        run: |
+          python3 - <<'EOF'
+          import re
+          with open('./publish/web.config', 'r') as f:
+              content = f.read()
+          env_block = '<environmentVariables><environmentVariable name="ASPNETCORE_ENVIRONMENT" value="Production" /></environmentVariables>'
+          # Convert self-closing <aspNetCore ... /> to <aspNetCore ...>{env_block}</aspNetCore>
+          content = re.sub(r'(<aspNetCore\b[^>]*?)\s*/>', r'\1>' + env_block + '</aspNetCore>', content)
+          with open('./publish/web.config', 'w') as f:
+              f.write(content)
+          EOF
 
       - name: Deploy via FTP
         run: |
