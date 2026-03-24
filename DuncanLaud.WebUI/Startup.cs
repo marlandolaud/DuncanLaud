@@ -7,6 +7,7 @@ using DuncanLaud.Infrastructure.Repositories;
 using DuncanLaud.Infrastructure.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -68,6 +69,13 @@ namespace DuncanLaud.WebUI
                     db.Database.EnsureCreated();
                 }
             }
+
+            // Trust X-Forwarded-Proto from IIS (SSL termination) so UseHttpsRedirection
+            // doesn't redirect requests that are already HTTPS at the client.
+            app.UseForwardedHeaders(new ForwardedHeadersOptions
+            {
+                ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+            });
 
             if (env.IsDevelopment())
             {

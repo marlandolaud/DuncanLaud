@@ -8,7 +8,12 @@ async function request(url, options = {}) {
     err.status = res.status;
     throw err;
   }
-  return res.status === 204 ? null : res.json();
+  if (res.status === 204) return null;
+  const ct = res.headers.get('content-type') || '';
+  if (!ct.includes('application/json')) {
+    throw new Error(`Unexpected response (${res.status}): expected JSON`);
+  }
+  return res.json();
 }
 
 export function fetchGroup(groupId) {
