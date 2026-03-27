@@ -1,9 +1,5 @@
 name: Deploy to FTP Server Stage
 on:
-  push:
-    branches:
-      - 'feature/**'
-
   pull_request:
     types: [opened, reopened, synchronize]
 
