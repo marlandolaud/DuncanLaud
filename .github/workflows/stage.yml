@@ -77,14 +77,14 @@ jobs:
           # intercept API routes before they reach the ASP.NET Core routing pipeline.
           # Distributed rules run before global/server rules in IIS URL Rewrite.
           rewrite_block = '''
-      <rewrite>
-        <rules>
-          <rule name="API Passthrough" stopProcessing="true">
-            <match url="^api/" />
-            <action type="None" />
-          </rule>
-        </rules>
-      </rewrite>'''
+          <rewrite>
+            <rules>
+              <rule name="API Passthrough" stopProcessing="true">
+                <match url="^api/" />
+                <action type="None" />
+              </rule>
+            </rules>
+          </rewrite>'''
           content = content.replace('</system.webServer>', rewrite_block + '\n    </system.webServer>')
           with open('./publish/web.config', 'w') as f:
               f.write(content)
