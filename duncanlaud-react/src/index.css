@@ -358,11 +358,12 @@ p:last-child { margin-bottom: 0; }
 }
 
 @media (max-width: 900px) {
-  .site-main__container {
-    grid-template-columns: 1fr;
-  }
+    .site-main__container {
+        grid-template-columns: 1fr;
+        order: 1;
+    }
   .site-main__sidebar-area {
-    order: -1;
+    order: 2;
   }
 }
 
