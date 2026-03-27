@@ -24,7 +24,7 @@ export default function Splash() {
         <p className="splash__eyebrow">Poetry &amp; Prose</p>
         <h1 className="splash__title">DuncanLaud.com</h1>
         <p className="splash__subtitle">
-          Words that heal, inspire, and endure
+          Words that comfort, encourage, inspire, any challenge
         </p>
         <a href="#main-content" className="splash__cta">
           Explore the Collection

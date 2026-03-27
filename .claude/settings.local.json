@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(docker exec:*)",
+      "Bash(curl -sk https://localhost:3000/ -o /dev/null -w \"HTTPS 3000: %{http_code}\\\\n\")",
+      "Bash(curl -s http://localhost:80/ -o /dev/null -w \"HTTP 80 redirect: %{http_code} → %{redirect_url}\\\\n\")",
+      "Bash(curl -s http://localhost:3000/ -o /dev/null -w \"HTTP 3000: %{http_code}\\\\n\")"
+    ]
+  }
+}
