@@ -148,6 +148,14 @@ namespace DuncanLaud.WebUI
 
             app.UseEndpoints(endpoints =>
             {
+                // Diagnostic: inline endpoint to verify routing pipeline works
+                endpoints.MapGet("/api/ping", async context =>
+                {
+                    context.Response.ContentType = "application/json";
+                    await context.Response.WriteAsync(
+                        $"{{\"status\":\"ok\",\"env\":\"{env.EnvironmentName}\",\"routes\":{endpoints.DataSources.Sum(ds => ds.Endpoints.Count)}}}");
+                });
+
                 // API controllers must be mapped BEFORE the SPA fallback
                 endpoints.MapControllers();
 
