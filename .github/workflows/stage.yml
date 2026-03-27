@@ -72,6 +72,20 @@ jobs:
           env_block = '<environmentVariables><environmentVariable name="ASPNETCORE_ENVIRONMENT" value="Staging" /></environmentVariables>'
           # Convert self-closing <aspNetCore ... /> to <aspNetCore ...>{env_block}</aspNetCore>
           content = re.sub(r'(<aspNetCore\b[^>]*?)\s*/>', r'\1>' + env_block + '</aspNetCore>', content)
+          # Add URL rewrite passthrough rule for /api/* so that any server-level SPA
+          # rewrite rule (which rewrites extensionless paths to /index.html) does not
+          # intercept API routes before they reach the ASP.NET Core routing pipeline.
+          # Distributed rules run before global/server rules in IIS URL Rewrite.
+          rewrite_block = '''
+      <rewrite>
+        <rules>
+          <rule name="API Passthrough" stopProcessing="true">
+            <match url="^api/" />
+            <action type="None" />
+          </rule>
+        </rules>
+      </rewrite>'''
+          content = content.replace('</system.webServer>', rewrite_block + '\n    </system.webServer>')
           with open('./publish/web.config', 'w') as f:
               f.write(content)
           EOF
