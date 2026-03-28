@@ -1,13 +1,20 @@
 import defaultAvatar from '../../assets/default-avatar.svg';
 import { personImageUrl } from '../../services/groupApi';
 
+function humanizeDays(days) {
+  if (days === 0) return 'Today!';
+  if (days === 1) return 'Tomorrow';
+  if (days < 7) return `in ${days} days`;
+  if (days < 14) return 'in 1 week';
+  if (days < 21) return 'in 2 weeks';
+  if (days < 28) return 'in 3 weeks';
+  if (days < 45) return 'in 1 month';
+  if (days < 60) return 'in 2 months';
+  return `in ${days} days`;
+}
+
 function BirthdayCard({ person, groupId }) {
-  const daysLabel =
-    person.daysUntil === 0
-      ? 'Today!'
-      : person.daysUntil === 1
-      ? 'Tomorrow'
-      : `in ${person.daysUntil} days`;
+  const daysLabel = humanizeDays(person.daysUntil);
 
   const urgentClass = person.daysUntil <= 7 ? 'birthday-card--urgent' : '';
   const imgSrc = person.hasImage ? personImageUrl(groupId, person.personId) : defaultAvatar;
