@@ -73,13 +73,14 @@ jobs:
                    set net:max-retries 3;
                    set log:enabled true;
                    open -u $FTP_USERNAME,$FTP_PASSWORD $FTP_SERVER/duncan-prod;
-                   mirror --parallel=10 -R --verbose ./publish /"
+                   mirror --parallel=10 --no-perms -R --verbose ./publish /"
         env:
           FTP_USERNAME: ${{ secrets.PROD_USERNAME }}
           FTP_PASSWORD: ${{ secrets.PROD_PASSWORD }}
           FTP_SERVER: ${{ secrets.PROD_SERVER }}
 
       - name: Bring app back online
+        if: always()
         run: |
           lftp -c "set ftp:ssl-allow no;
                    set net:timeout 60;
