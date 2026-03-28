@@ -32,10 +32,10 @@ services:
       - Logging__LogLevel__Default=Debug
       - Logging__LogLevel__Microsoft.AspNetCore=Information
     volumes:
-      - ../DuncanLaud.WebUI:/src/DuncanLaud.WebUI
-      - ../DuncanLaud.Domain:/src/DuncanLaud.Domain
-      - ../DuncanLaud.Infrastructure:/src/DuncanLaud.Infrastructure
-      - ../DuncanLaud.DTOs:/src/DuncanLaud.DTOs
+      - ../src/DuncanLaud.WebUI:/src/src/DuncanLaud.WebUI
+      - ../src/DuncanLaud.Domain:/src/src/DuncanLaud.Domain
+      - ../src/DuncanLaud.Infrastructure:/src/src/DuncanLaud.Infrastructure
+      - ../src/DuncanLaud.DTOs:/src/src/DuncanLaud.DTOs
     depends_on:
       db:
         condition: service_healthy
@@ -47,7 +47,7 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ../duncanlaud-react:/app
+      - ../src/duncanlaud-react:/app
       - react-node-modules:/app/node_modules
     environment:
       - VITE_API_URL=http://web:5000
