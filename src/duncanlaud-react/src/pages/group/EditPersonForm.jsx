@@ -301,7 +301,8 @@ export default function EditPersonForm({ groupId, personId, onSuccess, onCancel 
 
       <div className="add-person-form__actions">
         <button type="submit" className="add-person-form__submit" disabled={submitting}>
-          {submitting ? 'Saving...' : 'Save Changes'}
+          {submitting && <span className="add-person-form__spinner" aria-hidden="true" />}
+          {submitting ? 'Saving…' : 'Save Changes'}
         </button>
         <button type="button" className="add-person-form__cancel" onClick={onCancel} disabled={submitting}>
           Cancel

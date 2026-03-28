@@ -245,6 +245,7 @@ export default function AddPersonForm({ groupId, onSuccess, onCancel, isFirstMem
 
       <div className="add-person-form__actions">
         <button type="submit" className="add-person-form__submit" disabled={submitting}>
+          {submitting && <span className="add-person-form__spinner" aria-hidden="true" />}
           {submitting ? 'Adding…' : 'Add Member'}
         </button>
         {onCancel && (
