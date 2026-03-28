@@ -54,6 +54,18 @@ jobs:
               f.write(content)
           EOF
 
+      - name: Take app offline (unlock DLLs so FTP can overwrite them)
+        run: |
+          echo '<!doctype html><html><body><h1>Updating — back in a moment.</h1></body></html>' > app_offline.htm
+          lftp -c "set ftp:ssl-allow no;
+                   set net:timeout 60;
+                   open -u $FTP_USERNAME,$FTP_PASSWORD $FTP_SERVER/duncan-prod;
+                   put -O / app_offline.htm"
+        env:
+          FTP_USERNAME: ${{ secrets.PROD_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.PROD_PASSWORD }}
+          FTP_SERVER: ${{ secrets.PROD_SERVER }}
+
       - name: Deploy via FTP
         run: |
           lftp -c "set ftp:ssl-allow no;
@@ -61,7 +73,18 @@ jobs:
                    set net:max-retries 3;
                    set log:enabled true;
                    open -u $FTP_USERNAME,$FTP_PASSWORD $FTP_SERVER/duncan-prod;
-                   mirror --parallel=10 -R --verbose ./publish /" || true
+                   mirror --parallel=10 -R --verbose ./publish /"
+        env:
+          FTP_USERNAME: ${{ secrets.PROD_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.PROD_PASSWORD }}
+          FTP_SERVER: ${{ secrets.PROD_SERVER }}
+
+      - name: Bring app back online
+        run: |
+          lftp -c "set ftp:ssl-allow no;
+                   set net:timeout 60;
+                   open -u $FTP_USERNAME,$FTP_PASSWORD $FTP_SERVER/duncan-prod;
+                   rm -f /app_offline.htm"
         env:
           FTP_USERNAME: ${{ secrets.PROD_USERNAME }}
           FTP_PASSWORD: ${{ secrets.PROD_PASSWORD }}
