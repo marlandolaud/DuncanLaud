@@ -192,7 +192,6 @@ export default function AddPersonForm({ groupId, onSuccess, onCancel, isFirstMem
         </div>
       </div>
 
-      <p className="add-person-form__hint">Names may only contain letters (A–Z, a–z) and numbers (0–9).</p>
 
       {submitError && <p className="add-person-form__submit-error" role="alert">{submitError}</p>}
 
