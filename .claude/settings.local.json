@@ -12,7 +12,12 @@
       "Bash(curl -sv 'https://stage.duncanlaud.com/api/ping')",
       "Bash(curl -s http://localhost:8080/api/ping)",
       "Bash(curl -s http://localhost:8080/api/group/019d2d0c-c2ed-7559-99f2-5337b5af7827)",
-      "Bash(curl -s -X POST http://localhost:8080/api/group -H 'Content-Type: application/json' -d '{\"\"\"\"groupId\"\"\"\":\"\"\"\"10000000-0000-0000-0000-000000000001\"\"\"\",\"\"\"\"name\"\"\"\":\"\"\"\"Test\"\"\"\"}')"
+      "Bash(curl -s -X POST http://localhost:8080/api/group -H 'Content-Type: application/json' -d '{\"\"\"\"groupId\"\"\"\":\"\"\"\"10000000-0000-0000-0000-000000000001\"\"\"\",\"\"\"\"name\"\"\"\":\"\"\"\"Test\"\"\"\"}')",
+      "Bash(curl -si 'http://stage.duncanlaud.com/api/ping')",
+      "Bash(curl -s 'http://stage.duncanlaud.com/api/ping')",
+      "Bash(curl -si 'http://stage.duncanlaud.com/api/group/019d2d0c-c2ed-7559-99f2-5337b5af7827')",
+      "Bash(curl -si -X POST 'http://stage.duncanlaud.com/api/group' -H 'Content-Type: application/json' -d '{\"\"\"\"groupId\"\"\"\":\"\"\"\"019d2d0c-c2ed-7559-99f2-5337b5af7827\"\"\"\",\"\"\"\"name\"\"\"\":\"\"\"\"Test\"\"\"\"}')",
+      "Bash(curl -si 'https://duncanlaud.com/api/ping')"
     ]
   }
 }
