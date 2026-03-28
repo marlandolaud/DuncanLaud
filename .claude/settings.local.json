@@ -6,7 +6,13 @@
       "Bash(curl -s http://localhost:80/ -o /dev/null -w \"HTTP 80 redirect: %{http_code} → %{redirect_url}\\\\n\")",
       "Bash(curl -s http://localhost:3000/ -o /dev/null -w \"HTTP 3000: %{http_code}\\\\n\")",
       "WebSearch",
-      "Bash(docker compose:*)"
+      "Bash(docker compose:*)",
+      "Bash(dotnet build:*)",
+      "Bash(curl -si 'https://stage.duncanlaud.com/api/ping')",
+      "Bash(curl -sv 'https://stage.duncanlaud.com/api/ping')",
+      "Bash(curl -s http://localhost:8080/api/ping)",
+      "Bash(curl -s http://localhost:8080/api/group/019d2d0c-c2ed-7559-99f2-5337b5af7827)",
+      "Bash(curl -s -X POST http://localhost:8080/api/group -H 'Content-Type: application/json' -d '{\"\"\"\"groupId\"\"\"\":\"\"\"\"10000000-0000-0000-0000-000000000001\"\"\"\",\"\"\"\"name\"\"\"\":\"\"\"\"Test\"\"\"\"}')"
     ]
   }
 }
