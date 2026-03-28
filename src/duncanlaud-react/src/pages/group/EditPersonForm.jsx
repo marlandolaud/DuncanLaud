@@ -1,17 +1,25 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { fetchPerson, updatePerson, personImageUrl } from '../../services/groupApi';
 import { sanitizeTextInput } from '../../utils/sanitize';
 import compressImage from '../../utils/compressImage';
 import defaultAvatar from '../../assets/default-avatar.svg';
 
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+const MONTHS = [
+  'January','February','March','April','May','June',
+  'July','August','September','October','November','December',
+];
+const CURRENT_YEAR = new Date().getFullYear();
+const YEARS = Array.from({ length: CURRENT_YEAR - 1900 + 1 }, (_, i) => CURRENT_YEAR - i);
 
 export default function EditPersonForm({ groupId, personId, onSuccess, onCancel }) {
   const [form, setForm] = useState({
     firstName: '',
     lastName: '',
     preferredName: '',
-    birthDate: '',
+    birthYear: '',
+    birthMonth: '',
+    birthDay: '',
     email: '',
   });
   const [hasExistingImage, setHasExistingImage] = useState(false);
@@ -29,11 +37,14 @@ export default function EditPersonForm({ groupId, personId, onSuccess, onCancel 
     async function load() {
       try {
         const person = await fetchPerson(groupId, personId);
+        const [y, m, d] = (person.birthDate || '').split('-');
         setForm({
           firstName: person.firstName,
           lastName: person.lastName,
           preferredName: person.preferredName || '',
-          birthDate: person.birthDate,
+          birthYear: y ? String(Number(y)) : '',
+          birthMonth: m ? String(Number(m)) : '',
+          birthDay: d ? String(Number(d)) : '',
           email: person.email || '',
         });
         setHasExistingImage(person.hasImage);
@@ -54,13 +65,32 @@ export default function EditPersonForm({ groupId, personId, onSuccess, onCancel 
     };
   }
 
-  /** For non-sanitized fields (e.g. date). */
+  /** For non-sanitized fields (e.g. email, date selects). */
   function set(field) {
     return (e) => {
-      setForm((prev) => ({ ...prev, [field]: e.target.value }));
-      setErrors((prev) => ({ ...prev, [field]: '' }));
+      const value = e.target.value;
+      setForm((prev) => {
+        const next = { ...prev, [field]: value };
+        if (field === 'birthYear' || field === 'birthMonth') {
+          const y = field === 'birthYear' ? Number(value) : Number(prev.birthYear);
+          const m = field === 'birthMonth' ? Number(value) : Number(prev.birthMonth);
+          if (y && m && prev.birthDay) {
+            const maxDay = new Date(y, m, 0).getDate();
+            if (Number(prev.birthDay) > maxDay) next.birthDay = '';
+          }
+        }
+        return next;
+      });
+      setErrors((prev) => ({ ...prev, [field]: '', birthDate: '' }));
     };
   }
+
+  const daysInMonth = useMemo(() => {
+    const y = Number(form.birthYear);
+    const m = Number(form.birthMonth);
+    const max = (y && m) ? new Date(y, m, 0).getDate() : 31;
+    return Array.from({ length: max }, (_, i) => i + 1);
+  }, [form.birthYear, form.birthMonth]);
 
   async function handlePhotoChange(e) {
     const file = e.target.files?.[0];
@@ -102,9 +132,10 @@ export default function EditPersonForm({ groupId, personId, onSuccess, onCancel 
     if (form.lastName.length > 100) errs.lastName = 'Last name must be 100 characters or fewer.';
     if (form.preferredName && form.preferredName.length < 2)
       errs.preferredName = 'Preferred name must be at least 2 characters (letters and numbers only).';
-    if (!form.birthDate) errs.birthDate = 'Birthday is required.';
-    else {
-      const bd = new Date(form.birthDate);
+    if (!form.birthYear || !form.birthMonth || !form.birthDay) {
+      errs.birthDate = 'Birthday is required.';
+    } else {
+      const bd = new Date(Number(form.birthYear), Number(form.birthMonth) - 1, Number(form.birthDay));
       const today = new Date();
       if (bd >= today) errs.birthDate = 'Birthday must be in the past.';
       if (bd.getFullYear() < 1900) errs.birthDate = 'Birthday must be after 1900.';
@@ -123,11 +154,12 @@ export default function EditPersonForm({ groupId, personId, onSuccess, onCancel 
     setSubmitError('');
 
     try {
+      const birthDate = `${form.birthYear}-${String(form.birthMonth).padStart(2, '0')}-${String(form.birthDay).padStart(2, '0')}`;
       await updatePerson(groupId, personId, {
         firstName: form.firstName,
         lastName: form.lastName,
         preferredName: form.preferredName || null,
-        birthDate: form.birthDate,
+        birthDate,
         email: form.email || null,
         photoFile: photoFile || null,
         removeImage,
@@ -239,9 +271,21 @@ export default function EditPersonForm({ groupId, personId, onSuccess, onCancel 
         </div>
 
         <div className="add-person-form__field">
-          <label htmlFor="editBirthDate">Birthday <span aria-hidden="true">*</span></label>
-          <input id="editBirthDate" type="date" value={form.birthDate} onChange={set('birthDate')}
-            max={new Date().toISOString().split('T')[0]} min="1900-01-01" required />
+          <label>Birthday <span aria-hidden="true">*</span></label>
+          <div className="add-person-form__date-row">
+            <select id="editBirthYear" value={form.birthYear} onChange={set('birthYear')} aria-label="Birth year">
+              <option value="">Year</option>
+              {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
+            </select>
+            <select id="editBirthMonth" value={form.birthMonth} onChange={set('birthMonth')} aria-label="Birth month">
+              <option value="">Month</option>
+              {MONTHS.map((m, i) => <option key={i} value={i + 1}>{m}</option>)}
+            </select>
+            <select id="editBirthDay" value={form.birthDay} onChange={set('birthDay')} aria-label="Birth day">
+              <option value="">Day</option>
+              {daysInMonth.map(d => <option key={d} value={d}>{d}</option>)}
+            </select>
+          </div>
           {errors.birthDate && <span className="add-person-form__error" role="alert">{errors.birthDate}</span>}
         </div>
 
