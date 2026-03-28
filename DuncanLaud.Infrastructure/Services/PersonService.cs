@@ -23,6 +23,8 @@ public class PersonService : IPersonService
 
         ValidateFields(sanitizedFirst, sanitizedLast, sanitizedPref, command.BirthDate);
 
+        ValidateEmail(command.Email);
+
         var person = new Person
         {
             Id = Guid.NewGuid(),
@@ -33,6 +35,7 @@ public class PersonService : IPersonService
             BirthDate = command.BirthDate,
             ImageData = command.ImageData,
             ImageContentType = command.ImageContentType,
+            Email = string.IsNullOrWhiteSpace(command.Email) ? null : command.Email.Trim(),
             CreatedAtUtc = DateTime.UtcNow
         };
 
@@ -54,11 +57,13 @@ public class PersonService : IPersonService
         var sanitizedPref  = command.PreferredName is null ? null : PersonValidator.Sanitize(command.PreferredName);
 
         ValidateFields(sanitizedFirst, sanitizedLast, sanitizedPref, command.BirthDate);
+        ValidateEmail(command.Email);
 
         person.FirstName = sanitizedFirst;
         person.LastName = sanitizedLast;
         person.PreferredName = string.IsNullOrEmpty(sanitizedPref) ? null : sanitizedPref;
         person.BirthDate = command.BirthDate;
+        person.Email = string.IsNullOrWhiteSpace(command.Email) ? null : command.Email.Trim();
 
         if (command.RemoveImage)
         {
@@ -120,5 +125,26 @@ public class PersonService : IPersonService
     {
         if (ProfanityChecker.IsProfanity(value))
             throw new ArgumentException($"{fieldName} contains inappropriate content.", fieldName);
+    }
+
+    private static void ValidateEmail(string? email)
+    {
+        if (string.IsNullOrWhiteSpace(email))
+            return;
+
+        var trimmed = email.Trim();
+        if (trimmed.Length > 254)
+            throw new ArgumentException("Email must be 254 characters or fewer.", nameof(email));
+
+        try
+        {
+            var addr = new System.Net.Mail.MailAddress(trimmed);
+            if (addr.Address != trimmed)
+                throw new ArgumentException("Email address is not valid.", nameof(email));
+        }
+        catch (FormatException)
+        {
+            throw new ArgumentException("Email address is not valid.", nameof(email));
+        }
     }
 }

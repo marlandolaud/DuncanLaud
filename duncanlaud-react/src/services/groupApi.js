@@ -28,12 +28,13 @@ export function createGroup(groupId, name) {
   });
 }
 
-export function addPerson(groupId, { firstName, lastName, preferredName, birthDate, photoFile }) {
+export function addPerson(groupId, { firstName, lastName, preferredName, birthDate, email, photoFile }) {
   const form = new FormData();
   form.append('firstName', firstName);
   form.append('lastName', lastName);
   if (preferredName) form.append('preferredName', preferredName);
   form.append('birthDate', birthDate);
+  if (email) form.append('email', email);
   if (photoFile) form.append('image', photoFile);
 
   return request(`${BASE}/${groupId}/person`, { method: 'POST', body: form });
@@ -47,12 +48,13 @@ export function fetchPerson(groupId, personId) {
   return request(`${BASE}/${groupId}/person/${personId}`);
 }
 
-export function updatePerson(groupId, personId, { firstName, lastName, preferredName, birthDate, photoFile, removeImage }) {
+export function updatePerson(groupId, personId, { firstName, lastName, preferredName, birthDate, email, photoFile, removeImage }) {
   const form = new FormData();
   form.append('firstName', firstName);
   form.append('lastName', lastName);
   if (preferredName) form.append('preferredName', preferredName);
   form.append('birthDate', birthDate);
+  if (email) form.append('email', email);
   form.append('removeImage', removeImage ? 'true' : 'false');
   if (photoFile) form.append('image', photoFile);
 

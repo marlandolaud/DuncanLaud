@@ -10,6 +10,7 @@ public class Person
     public DateOnly BirthDate { get; set; }
     public byte[]? ImageData { get; set; }
     public string? ImageContentType { get; set; }
+    public string? Email { get; set; }
     public DateTime CreatedAtUtc { get; set; }
     public Group Group { get; set; } = null!;
 }

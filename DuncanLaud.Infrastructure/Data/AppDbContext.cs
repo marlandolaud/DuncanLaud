@@ -29,6 +29,7 @@ public class AppDbContext : DbContext
             e.Property(p => p.LastName).IsRequired().HasMaxLength(100);
             e.Property(p => p.PreferredName).HasMaxLength(100);
             e.Property(p => p.ImageContentType).HasMaxLength(50);
+            e.Property(p => p.Email).HasMaxLength(254);
             e.Property(p => p.BirthDate).HasColumnType("date");
             e.Property(p => p.CreatedAtUtc).IsRequired();
 

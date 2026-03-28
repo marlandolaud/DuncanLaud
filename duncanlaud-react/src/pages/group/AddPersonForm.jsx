@@ -11,6 +11,7 @@ export default function AddPersonForm({ groupId, onSuccess, onCancel, isFirstMem
     lastName: '',
     preferredName: '',
     birthDate: '',
+    email: '',
   });
   const [photoFile, setPhotoFile] = useState(null);
   const [photoPreview, setPhotoPreview] = useState(null);
@@ -71,6 +72,8 @@ export default function AddPersonForm({ groupId, onSuccess, onCancel, isFirstMem
       if (bd >= today) errs.birthDate = 'Birthday must be in the past.';
       if (bd.getFullYear() < 1900) errs.birthDate = 'Birthday must be after 1900.';
     }
+    if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))
+      errs.email = 'Please enter a valid email address.';
     return errs;
   }
 
@@ -88,6 +91,7 @@ export default function AddPersonForm({ groupId, onSuccess, onCancel, isFirstMem
         lastName: form.lastName,
         preferredName: form.preferredName || null,
         birthDate: form.birthDate,
+        email: form.email || null,
         photoFile: photoFile || null,
       });
 
@@ -178,6 +182,13 @@ export default function AddPersonForm({ groupId, onSuccess, onCancel, isFirstMem
           <input id="birthDate" type="date" value={form.birthDate} onChange={set('birthDate')}
             max={new Date().toISOString().split('T')[0]} min="1900-01-01" required />
           {errors.birthDate && <span className="add-person-form__error" role="alert">{errors.birthDate}</span>}
+        </div>
+
+        <div className="add-person-form__field">
+          <label htmlFor="email">Email</label>
+          <input id="email" type="email" value={form.email} onChange={set('email')}
+            maxLength={254} autoComplete="email" placeholder="name@example.com" />
+          {errors.email && <span className="add-person-form__error" role="alert">{errors.email}</span>}
         </div>
       </div>
 

@@ -69,6 +69,7 @@ public class GroupController : ControllerBase
         [FromForm] string lastName,
         [FromForm] string? preferredName,
         [FromForm] DateOnly birthDate,
+        [FromForm] string? email,
         IFormFile? image,
         CancellationToken ct)
     {
@@ -102,7 +103,8 @@ public class GroupController : ControllerBase
                 preferredName,
                 birthDate,
                 imageData,
-                imageContentType);
+                imageContentType,
+                email);
 
             var person = await _personService.AddPersonAsync(command, ct);
 
@@ -112,6 +114,7 @@ public class GroupController : ControllerBase
                 person.LastName,
                 person.PreferredName,
                 person.BirthDate,
+                person.Email,
                 person.ImageData is not null,
                 person.CreatedAtUtc);
 
@@ -140,6 +143,7 @@ public class GroupController : ControllerBase
             p.LastName,
             p.PreferredName,
             p.BirthDate,
+            p.Email,
             p.ImageData is not null,
             p.CreatedAtUtc));
 
@@ -161,6 +165,7 @@ public class GroupController : ControllerBase
             person.LastName,
             person.PreferredName,
             person.BirthDate,
+            person.Email,
             person.ImageData is not null,
             person.CreatedAtUtc));
     }
@@ -178,6 +183,7 @@ public class GroupController : ControllerBase
         [FromForm] string? preferredName,
         [FromForm] DateOnly birthDate,
         [FromForm] bool removeImage,
+        [FromForm] string? email,
         IFormFile? image,
         CancellationToken ct)
     {
@@ -213,7 +219,8 @@ public class GroupController : ControllerBase
                 birthDate,
                 imageData,
                 imageContentType,
-                removeImage);
+                removeImage,
+                email);
 
             var person = await _personService.UpdatePersonAsync(command, ct);
 
@@ -223,6 +230,7 @@ public class GroupController : ControllerBase
                 person.LastName,
                 person.PreferredName,
                 person.BirthDate,
+                person.Email,
                 person.ImageData is not null,
                 person.CreatedAtUtc));
         }

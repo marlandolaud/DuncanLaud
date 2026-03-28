@@ -7,5 +7,6 @@ public record CreatePersonCommand(
     string? PreferredName,
     DateOnly BirthDate,
     byte[]? ImageData,
-    string? ImageContentType
+    string? ImageContentType,
+    string? Email
 );

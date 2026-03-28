@@ -9,5 +9,6 @@ public record UpdatePersonCommand(
     DateOnly BirthDate,
     byte[]? ImageData,
     string? ImageContentType,
-    bool RemoveImage
+    bool RemoveImage,
+    string? Email
 );

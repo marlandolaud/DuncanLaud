@@ -19,7 +19,8 @@ public class PersonServiceTests
         string? preferredName = null,
         DateOnly? birthDate = null,
         byte[]? imageData = null,
-        string? imageContentType = null)
+        string? imageContentType = null,
+        string? email = null)
     {
         return new CreatePersonCommand(
             Guid.NewGuid(),
@@ -28,7 +29,8 @@ public class PersonServiceTests
             preferredName,
             birthDate ?? new DateOnly(2000, 1, 15),
             imageData,
-            imageContentType);
+            imageContentType,
+            email);
     }
 
     // ── AddPersonAsync — success ───────────────────────
@@ -214,7 +216,7 @@ public class PersonServiceTests
                  .ReturnsAsync(existing);
 
         var cmd = new UpdatePersonCommand(personId, groupId, "Bob", "Jones", "Bobby",
-            new DateOnly(1995, 6, 15), null, null, false);
+            new DateOnly(1995, 6, 15), null, null, false, null);
 
         var result = await _sut.UpdatePersonAsync(cmd, CancellationToken.None);
 
@@ -232,7 +234,7 @@ public class PersonServiceTests
                  .ReturnsAsync((Person?)null);
 
         var cmd = new UpdatePersonCommand(Guid.NewGuid(), Guid.NewGuid(), "Al", "Sm", null,
-            new DateOnly(2000, 1, 1), null, null, false);
+            new DateOnly(2000, 1, 1), null, null, false, null);
 
         await Assert.ThrowsAsync<KeyNotFoundException>(() => _sut.UpdatePersonAsync(cmd, CancellationToken.None));
     }
@@ -250,7 +252,7 @@ public class PersonServiceTests
                  .ReturnsAsync(existing);
 
         var cmd = new UpdatePersonCommand(personId, Guid.NewGuid(), "Al", "Sm", null,
-            new DateOnly(2000, 1, 1), null, null, false);
+            new DateOnly(2000, 1, 1), null, null, false, null);
 
         await Assert.ThrowsAsync<KeyNotFoundException>(() => _sut.UpdatePersonAsync(cmd, CancellationToken.None));
     }
@@ -269,7 +271,7 @@ public class PersonServiceTests
                  .ReturnsAsync(existing);
 
         var cmd = new UpdatePersonCommand(personId, groupId, "A", "Smith", null,
-            new DateOnly(2000, 1, 1), null, null, false);
+            new DateOnly(2000, 1, 1), null, null, false, null);
 
         await Assert.ThrowsAsync<ArgumentException>(() => _sut.UpdatePersonAsync(cmd, CancellationToken.None));
     }
@@ -290,7 +292,7 @@ public class PersonServiceTests
 
         var newImg = new byte[] { 9, 8, 7 };
         var cmd = new UpdatePersonCommand(personId, groupId, "Alice", "Smith", null,
-            new DateOnly(2000, 1, 1), newImg, "image/png", false);
+            new DateOnly(2000, 1, 1), newImg, "image/png", false, null);
 
         var result = await _sut.UpdatePersonAsync(cmd, CancellationToken.None);
 
@@ -313,7 +315,7 @@ public class PersonServiceTests
                  .ReturnsAsync(existing);
 
         var cmd = new UpdatePersonCommand(personId, groupId, "Alice", "Smith", null,
-            new DateOnly(2000, 1, 1), null, null, true);
+            new DateOnly(2000, 1, 1), null, null, true, null);
 
         var result = await _sut.UpdatePersonAsync(cmd, CancellationToken.None);
 
@@ -337,7 +339,7 @@ public class PersonServiceTests
                  .ReturnsAsync(existing);
 
         var cmd = new UpdatePersonCommand(personId, groupId, "Alice", "Smith", null,
-            new DateOnly(2000, 1, 1), null, null, false);
+            new DateOnly(2000, 1, 1), null, null, false, null);
 
         var result = await _sut.UpdatePersonAsync(cmd, CancellationToken.None);
 
@@ -360,7 +362,7 @@ public class PersonServiceTests
                  .ReturnsAsync(existing);
 
         var cmd = new UpdatePersonCommand(personId, groupId, "B0b!", "Jon3s#", null,
-            new DateOnly(2000, 1, 1), null, null, false);
+            new DateOnly(2000, 1, 1), null, null, false, null);
 
         var result = await _sut.UpdatePersonAsync(cmd, CancellationToken.None);
 

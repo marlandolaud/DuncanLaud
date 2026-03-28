@@ -6,6 +6,7 @@ public record PersonResponse(
     string LastName,
     string? PreferredName,
     DateOnly BirthDate,
+    string? Email,
     bool HasImage,
     DateTime CreatedAtUtc
 );

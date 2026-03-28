@@ -11,6 +11,7 @@ export default function EditPersonForm({ groupId, personId, onSuccess, onCancel 
     lastName: '',
     preferredName: '',
     birthDate: '',
+    email: '',
   });
   const [hasExistingImage, setHasExistingImage] = useState(false);
   const [removeImage, setRemoveImage] = useState(false);
@@ -32,6 +33,7 @@ export default function EditPersonForm({ groupId, personId, onSuccess, onCancel 
           lastName: person.lastName,
           preferredName: person.preferredName || '',
           birthDate: person.birthDate,
+          email: person.email || '',
         });
         setHasExistingImage(person.hasImage);
       } catch (err) {
@@ -101,6 +103,8 @@ export default function EditPersonForm({ groupId, personId, onSuccess, onCancel 
       if (bd >= today) errs.birthDate = 'Birthday must be in the past.';
       if (bd.getFullYear() < 1900) errs.birthDate = 'Birthday must be after 1900.';
     }
+    if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))
+      errs.email = 'Please enter a valid email address.';
     return errs;
   }
 
@@ -118,6 +122,7 @@ export default function EditPersonForm({ groupId, personId, onSuccess, onCancel 
         lastName: form.lastName,
         preferredName: form.preferredName || null,
         birthDate: form.birthDate,
+        email: form.email || null,
         photoFile: photoFile || null,
         removeImage,
       });
@@ -232,6 +237,13 @@ export default function EditPersonForm({ groupId, personId, onSuccess, onCancel 
           <input id="editBirthDate" type="date" value={form.birthDate} onChange={set('birthDate')}
             max={new Date().toISOString().split('T')[0]} min="1900-01-01" required />
           {errors.birthDate && <span className="add-person-form__error" role="alert">{errors.birthDate}</span>}
+        </div>
+
+        <div className="add-person-form__field">
+          <label htmlFor="editEmail">Email</label>
+          <input id="editEmail" type="email" value={form.email} onChange={set('email')}
+            maxLength={254} autoComplete="email" placeholder="name@example.com" />
+          {errors.email && <span className="add-person-form__error" role="alert">{errors.email}</span>}
         </div>
       </div>
 

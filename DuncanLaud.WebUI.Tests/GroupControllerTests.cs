@@ -110,7 +110,7 @@ public class GroupControllerTests
         _groupServiceMock.Setup(s => s.GetGroupAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
                          .ReturnsAsync((Group?)null);
 
-        var result = await _sut.AddPerson(Guid.NewGuid(), "Alice", "Smith", null, new DateOnly(2000, 1, 1), null, CancellationToken.None);
+        var result = await _sut.AddPerson(Guid.NewGuid(), "Alice", "Smith", null, new DateOnly(2000, 1, 1), null, null, CancellationToken.None);
 
         Assert.IsType<NotFoundResult>(result);
     }
@@ -130,7 +130,7 @@ public class GroupControllerTests
         _personServiceMock.Setup(s => s.AddPersonAsync(It.IsAny<CreatePersonCommand>(), It.IsAny<CancellationToken>()))
                           .ReturnsAsync(person);
 
-        var result = await _sut.AddPerson(groupId, "Alice", "Smith", null, new DateOnly(2000, 1, 1), null, CancellationToken.None);
+        var result = await _sut.AddPerson(groupId, "Alice", "Smith", null, new DateOnly(2000, 1, 1), null, null, CancellationToken.None);
 
         var obj = Assert.IsType<ObjectResult>(result);
         Assert.Equal(201, obj.StatusCode);
@@ -156,7 +156,7 @@ public class GroupControllerTests
                           .ReturnsAsync(person);
 
         var imageFile = CreateMockFormFile("test.jpg", "image/jpeg", new byte[] { 1, 2, 3 });
-        var result = await _sut.AddPerson(groupId, "Alice", "Smith", null, new DateOnly(2000, 1, 1), imageFile, CancellationToken.None);
+        var result = await _sut.AddPerson(groupId, "Alice", "Smith", null, new DateOnly(2000, 1, 1), null, imageFile, CancellationToken.None);
 
         var obj = Assert.IsType<ObjectResult>(result);
         Assert.Equal(201, obj.StatusCode);
@@ -172,7 +172,7 @@ public class GroupControllerTests
                          .ReturnsAsync(new Group { Id = groupId, Name = "G", Members = new List<Person>() });
 
         var largeImage = CreateMockFormFile("big.jpg", "image/jpeg", new byte[6 * 1024 * 1024]);
-        var result = await _sut.AddPerson(groupId, "Alice", "Smith", null, new DateOnly(2000, 1, 1), largeImage, CancellationToken.None);
+        var result = await _sut.AddPerson(groupId, "Alice", "Smith", null, new DateOnly(2000, 1, 1), null, largeImage, CancellationToken.None);
 
         Assert.IsType<BadRequestObjectResult>(result);
     }
@@ -185,7 +185,7 @@ public class GroupControllerTests
                          .ReturnsAsync(new Group { Id = groupId, Name = "G", Members = new List<Person>() });
 
         var badFile = CreateMockFormFile("hack.exe", "application/octet-stream", new byte[] { 1 });
-        var result = await _sut.AddPerson(groupId, "Alice", "Smith", null, new DateOnly(2000, 1, 1), badFile, CancellationToken.None);
+        var result = await _sut.AddPerson(groupId, "Alice", "Smith", null, new DateOnly(2000, 1, 1), null, badFile, CancellationToken.None);
 
         Assert.IsType<BadRequestObjectResult>(result);
     }
@@ -199,7 +199,7 @@ public class GroupControllerTests
         _personServiceMock.Setup(s => s.AddPersonAsync(It.IsAny<CreatePersonCommand>(), It.IsAny<CancellationToken>()))
                           .ThrowsAsync(new ArgumentException("First name contains inappropriate content."));
 
-        var result = await _sut.AddPerson(groupId, "BadWord", "Smith", null, new DateOnly(2000, 1, 1), null, CancellationToken.None);
+        var result = await _sut.AddPerson(groupId, "BadWord", "Smith", null, new DateOnly(2000, 1, 1), null, null, CancellationToken.None);
 
         Assert.IsType<BadRequestObjectResult>(result);
     }
@@ -217,7 +217,7 @@ public class GroupControllerTests
                               BirthDate = new DateOnly(2000, 1, 1), CreatedAtUtc = DateTime.UtcNow
                           });
 
-        var result = await _sut.AddPerson(groupId, "Al", "Sm", null, new DateOnly(2000, 1, 1), null, CancellationToken.None);
+        var result = await _sut.AddPerson(groupId, "Al", "Sm", null, new DateOnly(2000, 1, 1), null, null, CancellationToken.None);
 
         var obj = Assert.IsType<ObjectResult>(result);
         Assert.Equal(201, obj.StatusCode);
@@ -416,7 +416,7 @@ public class GroupControllerTests
 
         var result = await _sut.UpdatePerson(
             Guid.NewGuid(), Guid.NewGuid(), "Alice", "Smith", null,
-            new DateOnly(2000, 1, 1), false, null, CancellationToken.None);
+            new DateOnly(2000, 1, 1), false, null, null, CancellationToken.None);
 
         Assert.IsType<NotFoundResult>(result);
     }
@@ -439,7 +439,7 @@ public class GroupControllerTests
 
         var result = await _sut.UpdatePerson(
             groupId, personId, "Bob", "Jones", null,
-            new DateOnly(1995, 6, 15), false, null, CancellationToken.None);
+            new DateOnly(1995, 6, 15), false, null, null, CancellationToken.None);
 
         var ok = Assert.IsType<OkObjectResult>(result);
         var response = Assert.IsType<PersonResponse>(ok.Value);
@@ -458,7 +458,7 @@ public class GroupControllerTests
 
         var result = await _sut.UpdatePerson(
             groupId, Guid.NewGuid(), "Alice", "Smith", null,
-            new DateOnly(2000, 1, 1), false, null, CancellationToken.None);
+            new DateOnly(2000, 1, 1), false, null, null, CancellationToken.None);
 
         Assert.IsType<NotFoundResult>(result);
     }
@@ -474,7 +474,7 @@ public class GroupControllerTests
 
         var result = await _sut.UpdatePerson(
             groupId, Guid.NewGuid(), "A", "Smith", null,
-            new DateOnly(2000, 1, 1), false, null, CancellationToken.None);
+            new DateOnly(2000, 1, 1), false, null, null, CancellationToken.None);
 
         Assert.IsType<BadRequestObjectResult>(result);
     }
@@ -489,7 +489,7 @@ public class GroupControllerTests
         var largeImage = CreateMockFormFile("big.jpg", "image/jpeg", new byte[6 * 1024 * 1024]);
         var result = await _sut.UpdatePerson(
             groupId, Guid.NewGuid(), "Alice", "Smith", null,
-            new DateOnly(2000, 1, 1), false, largeImage, CancellationToken.None);
+            new DateOnly(2000, 1, 1), false, null, largeImage, CancellationToken.None);
 
         Assert.IsType<BadRequestObjectResult>(result);
     }
@@ -504,7 +504,7 @@ public class GroupControllerTests
         var badFile = CreateMockFormFile("hack.exe", "application/octet-stream", new byte[] { 1 });
         var result = await _sut.UpdatePerson(
             groupId, Guid.NewGuid(), "Alice", "Smith", null,
-            new DateOnly(2000, 1, 1), false, badFile, CancellationToken.None);
+            new DateOnly(2000, 1, 1), false, null, badFile, CancellationToken.None);
 
         Assert.IsType<BadRequestObjectResult>(result);
     }
@@ -529,7 +529,7 @@ public class GroupControllerTests
         var imageFile = CreateMockFormFile("new.png", "image/png", new byte[] { 9, 8, 7 });
         var result = await _sut.UpdatePerson(
             groupId, personId, "Alice", "Smith", null,
-            new DateOnly(2000, 1, 1), false, imageFile, CancellationToken.None);
+            new DateOnly(2000, 1, 1), false, null, imageFile, CancellationToken.None);
 
         var ok = Assert.IsType<OkObjectResult>(result);
         var response = Assert.IsType<PersonResponse>(ok.Value);
