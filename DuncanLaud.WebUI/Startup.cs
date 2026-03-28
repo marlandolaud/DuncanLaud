@@ -62,18 +62,30 @@ namespace DuncanLaud.WebUI
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            // Auto-apply EF Core migrations on startup (skip for InMemory provider used in tests)
-            using (var scope = app.ApplicationServices.CreateScope())
+            // Auto-apply EF Core migrations on startup (skip for InMemory provider used in tests).
+            // Wrapped in try-catch so a DB failure never blocks middleware registration —
+            // without this, a missing connection string causes Configure() to abort before
+            // UseRouting / MapControllers, making every request fall to the SPA fallback.
+            try
             {
-                var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-                if (db.Database.IsRelational())
+                using (var scope = app.ApplicationServices.CreateScope())
                 {
-                    db.Database.Migrate();
+                    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                    if (db.Database.IsRelational())
+                    {
+                        db.Database.Migrate();
+                    }
+                    else
+                    {
+                        db.Database.EnsureCreated();
+                    }
                 }
-                else
-                {
-                    db.Database.EnsureCreated();
-                }
+            }
+            catch (Exception ex)
+            {
+                var logger = app.ApplicationServices.GetRequiredService<ILoggerFactory>()
+                    .CreateLogger<Startup>();
+                logger.LogCritical(ex, "Database migration failed — API routes will still be registered but DB operations will return errors.");
             }
 
             // Trust X-Forwarded-Proto from IIS (SSL termination) so UseHttpsRedirection
@@ -148,6 +160,14 @@ namespace DuncanLaud.WebUI
 
             app.UseEndpoints(endpoints =>
             {
+                // Diagnostic: inline endpoint to verify routing pipeline works
+                endpoints.MapGet("/api/ping", async context =>
+                {
+                    context.Response.ContentType = "application/json";
+                    await context.Response.WriteAsync(
+                        $"{{\"status\":\"ok\",\"env\":\"{env.EnvironmentName}\",\"routes\":{endpoints.DataSources.Sum(ds => ds.Endpoints.Count)}}}");
+                });
+
                 // API controllers must be mapped BEFORE the SPA fallback
                 endpoints.MapControllers();
 

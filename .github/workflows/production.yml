@@ -48,6 +48,8 @@ jobs:
           env_block = '<environmentVariables><environmentVariable name="ASPNETCORE_ENVIRONMENT" value="Production" /></environmentVariables>'
           # Convert self-closing <aspNetCore ... /> to <aspNetCore ...>{env_block}</aspNetCore>
           content = re.sub(r'(<aspNetCore\b[^>]*?)\s*/>', r'\1>' + env_block + '</aspNetCore>', content)
+          # Enable stdout logging for diagnostics
+          content = content.replace('stdoutLogEnabled="false"', 'stdoutLogEnabled="true"')
           with open('./publish/web.config', 'w') as f:
               f.write(content)
           EOF
