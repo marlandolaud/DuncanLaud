@@ -353,6 +353,34 @@
   border-color: #8b6b9e;
   box-shadow: 0 0 0 3px rgba(139,107,158,0.15);
 }
+.add-person-form__date-row {
+  display: flex;
+  gap: 0.5rem;
+}
+.add-person-form__date-row select {
+  padding: 0.65rem 0.85rem;
+  border: 1.5px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem;
+  transition: border-color 0.2s;
+  background: #fff;
+  appearance: auto;
+  min-width: 0;
+}
+.add-person-form__date-row select:first-child {
+  flex: 3;
+}
+.add-person-form__date-row select:nth-child(2) {
+  flex: 4;
+}
+.add-person-form__date-row select:last-child {
+  flex: 2;
+}
+.add-person-form__date-row select:focus {
+  outline: none;
+  border-color: #8b6b9e;
+  box-shadow: 0 0 0 3px rgba(139,107,158,0.15);
+}
 .add-person-form__error {
   font-size: 0.82rem;
   color: #c0392b;

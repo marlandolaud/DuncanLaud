@@ -1,16 +1,25 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useMemo } from 'react';
 import { addPerson } from '../../services/groupApi';
 import { sanitizeTextInput } from '../../utils/sanitize';
+import compressImage from '../../utils/compressImage';
 import defaultAvatar from '../../assets/default-avatar.svg';
 
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+const MONTHS = [
+  'January','February','March','April','May','June',
+  'July','August','September','October','November','December',
+];
+const CURRENT_YEAR = new Date().getFullYear();
+const YEARS = Array.from({ length: CURRENT_YEAR - 1900 + 1 }, (_, i) => CURRENT_YEAR - i);
 
 export default function AddPersonForm({ groupId, onSuccess, onCancel, isFirstMember }) {
   const [form, setForm] = useState({
     firstName: '',
     lastName: '',
     preferredName: '',
-    birthDate: '',
+    birthYear: '',
+    birthMonth: '',
+    birthDay: '',
     email: '',
   });
   const [photoFile, setPhotoFile] = useState(null);
@@ -29,15 +38,35 @@ export default function AddPersonForm({ groupId, onSuccess, onCancel, isFirstMem
     };
   }
 
-  /** For non-sanitized fields (e.g. date). */
+  /** For non-sanitized fields (e.g. email, date selects). */
   function set(field) {
     return (e) => {
-      setForm((prev) => ({ ...prev, [field]: e.target.value }));
-      setErrors((prev) => ({ ...prev, [field]: '' }));
+      const value = e.target.value;
+      setForm((prev) => {
+        const next = { ...prev, [field]: value };
+        // If year or month changed, clamp or clear the day if it exceeds new max
+        if (field === 'birthYear' || field === 'birthMonth') {
+          const y = field === 'birthYear' ? Number(value) : Number(prev.birthYear);
+          const m = field === 'birthMonth' ? Number(value) : Number(prev.birthMonth);
+          if (y && m && prev.birthDay) {
+            const maxDay = new Date(y, m, 0).getDate();
+            if (Number(prev.birthDay) > maxDay) next.birthDay = '';
+          }
+        }
+        return next;
+      });
+      setErrors((prev) => ({ ...prev, [field]: '', birthDate: '' }));
     };
   }
 
-  function handlePhotoChange(e) {
+  const daysInMonth = useMemo(() => {
+    const y = Number(form.birthYear);
+    const m = Number(form.birthMonth);
+    const max = (y && m) ? new Date(y, m, 0).getDate() : 31;
+    return Array.from({ length: max }, (_, i) => i + 1);
+  }, [form.birthYear, form.birthMonth]);
+
+  async function handlePhotoChange(e) {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -50,11 +79,16 @@ export default function AddPersonForm({ groupId, onSuccess, onCancel, isFirstMem
       return;
     }
 
-    setPhotoFile(file);
-    setErrors((prev) => ({ ...prev, photo: '' }));
-    const reader = new FileReader();
-    reader.onload = (ev) => setPhotoPreview(ev.target.result);
-    reader.readAsDataURL(file);
+    try {
+      const compressed = await compressImage(file);
+      setPhotoFile(compressed);
+      setErrors((prev) => ({ ...prev, photo: '' }));
+      const reader = new FileReader();
+      reader.onload = (ev) => setPhotoPreview(ev.target.result);
+      reader.readAsDataURL(compressed);
+    } catch {
+      setErrors((prev) => ({ ...prev, photo: 'Could not process image. Please try another.' }));
+    }
   }
 
   function validate() {
@@ -65,9 +99,10 @@ export default function AddPersonForm({ groupId, onSuccess, onCancel, isFirstMem
     if (form.lastName.length > 100) errs.lastName = 'Last name must be 100 characters or fewer.';
     if (form.preferredName && form.preferredName.length < 2)
       errs.preferredName = 'Preferred name must be at least 2 characters (letters and numbers only).';
-    if (!form.birthDate) errs.birthDate = 'Birthday is required.';
-    else {
-      const bd = new Date(form.birthDate);
+    if (!form.birthYear || !form.birthMonth || !form.birthDay) {
+      errs.birthDate = 'Birthday is required.';
+    } else {
+      const bd = new Date(Number(form.birthYear), Number(form.birthMonth) - 1, Number(form.birthDay));
       const today = new Date();
       if (bd >= today) errs.birthDate = 'Birthday must be in the past.';
       if (bd.getFullYear() < 1900) errs.birthDate = 'Birthday must be after 1900.';
@@ -86,11 +121,12 @@ export default function AddPersonForm({ groupId, onSuccess, onCancel, isFirstMem
     setSubmitError('');
 
     try {
+      const birthDate = `${form.birthYear}-${String(form.birthMonth).padStart(2, '0')}-${String(form.birthDay).padStart(2, '0')}`;
       await addPerson(groupId, {
         firstName: form.firstName,
         lastName: form.lastName,
         preferredName: form.preferredName || null,
-        birthDate: form.birthDate,
+        birthDate,
         email: form.email || null,
         photoFile: photoFile || null,
       });
@@ -178,9 +214,21 @@ export default function AddPersonForm({ groupId, onSuccess, onCancel, isFirstMem
         </div>
 
         <div className="add-person-form__field">
-          <label htmlFor="birthDate">Birthday <span aria-hidden="true">*</span></label>
-          <input id="birthDate" type="date" value={form.birthDate} onChange={set('birthDate')}
-            max={new Date().toISOString().split('T')[0]} min="1900-01-01" required />
+          <label>Birthday <span aria-hidden="true">*</span></label>
+          <div className="add-person-form__date-row">
+            <select id="birthYear" value={form.birthYear} onChange={set('birthYear')} aria-label="Birth year">
+              <option value="">Year</option>
+              {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
+            </select>
+            <select id="birthMonth" value={form.birthMonth} onChange={set('birthMonth')} aria-label="Birth month">
+              <option value="">Month</option>
+              {MONTHS.map((m, i) => <option key={i} value={i + 1}>{m}</option>)}
+            </select>
+            <select id="birthDay" value={form.birthDay} onChange={set('birthDay')} aria-label="Birth day">
+              <option value="">Day</option>
+              {daysInMonth.map(d => <option key={d} value={d}>{d}</option>)}
+            </select>
+          </div>
           {errors.birthDate && <span className="add-person-form__error" role="alert">{errors.birthDate}</span>}
         </div>
 

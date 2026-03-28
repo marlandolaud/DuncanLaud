@@ -26,7 +26,8 @@
       "Bash(mv DuncanLaud.Domain.Tests test/)",
       "Bash(mv DuncanLaud.Infrastructure.Tests test/)",
       "Bash(mv DuncanLaud.WebUI.Tests test/)",
-      "Bash(dotnet restore:*)"
+      "Bash(dotnet restore:*)",
+      "Bash(npx vite:*)"
     ]
   }
 }
