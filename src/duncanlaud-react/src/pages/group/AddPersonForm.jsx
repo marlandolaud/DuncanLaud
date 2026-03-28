@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { addPerson } from '../../services/groupApi';
 import { sanitizeTextInput } from '../../utils/sanitize';
+import compressImage from '../../utils/compressImage';
 import defaultAvatar from '../../assets/default-avatar.svg';
 
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
@@ -37,7 +38,7 @@ export default function AddPersonForm({ groupId, onSuccess, onCancel, isFirstMem
     };
   }
 
-  function handlePhotoChange(e) {
+  async function handlePhotoChange(e) {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -50,11 +51,16 @@ export default function AddPersonForm({ groupId, onSuccess, onCancel, isFirstMem
       return;
     }
 
-    setPhotoFile(file);
-    setErrors((prev) => ({ ...prev, photo: '' }));
-    const reader = new FileReader();
-    reader.onload = (ev) => setPhotoPreview(ev.target.result);
-    reader.readAsDataURL(file);
+    try {
+      const compressed = await compressImage(file);
+      setPhotoFile(compressed);
+      setErrors((prev) => ({ ...prev, photo: '' }));
+      const reader = new FileReader();
+      reader.onload = (ev) => setPhotoPreview(ev.target.result);
+      reader.readAsDataURL(compressed);
+    } catch {
+      setErrors((prev) => ({ ...prev, photo: 'Could not process image. Please try another.' }));
+    }
   }
 
   function validate() {
