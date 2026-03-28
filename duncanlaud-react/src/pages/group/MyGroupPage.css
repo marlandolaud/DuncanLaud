@@ -302,6 +302,30 @@
 .add-person-form__file-input {
   display: none;
 }
+.add-person-form__camera-btn {
+  display: none;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+  padding: 0.45rem 1rem;
+  background: #f5f0f8;
+  color: #6b4f7d;
+  border: 1.5px solid #ccc;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+.add-person-form__camera-btn:hover {
+  background: #ece4f1;
+  border-color: #8b6b9e;
+}
+@media (pointer: coarse) {
+  .add-person-form__camera-btn {
+    display: inline-flex;
+  }
+}
 .add-person-form__fields {
   display: flex;
   flex-direction: column;

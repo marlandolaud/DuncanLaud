@@ -18,6 +18,7 @@ export default function AddPersonForm({ groupId, onSuccess, onCancel, isFirstMem
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
   const fileInputRef = useRef(null);
+  const cameraInputRef = useRef(null);
 
   /** For text name fields: sanitize to A-Za-z0-9 only on every keystroke. */
   function setName(field) {
@@ -126,6 +127,27 @@ export default function AddPersonForm({ groupId, onSuccess, onCancel, isFirstMem
           className="add-person-form__file-input"
           aria-label="Upload photo"
         />
+        <input
+          ref={cameraInputRef}
+          type="file"
+          accept="image/*"
+          capture="user"
+          onChange={handlePhotoChange}
+          className="add-person-form__file-input"
+          aria-label="Take photo with camera"
+        />
+        <button
+          type="button"
+          className="add-person-form__camera-btn"
+          onClick={() => cameraInputRef.current?.click()}
+          aria-label="Take photo with camera"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+            <circle cx="12" cy="13" r="4"/>
+          </svg>
+          Take Photo
+        </button>
         {errors.photo && <p className="add-person-form__error" role="alert">{errors.photo}</p>}
       </div>
 
