@@ -88,6 +88,18 @@ public class BirthdayCalculatorTests
     }
 
     [Fact]
+    public void DaysUntil_LeapYearBirthday_PassedInLeapYear_NextYearNotLeap_UsesFeb28()
+    {
+        // Today is March 1, 2028 (leap year). Feb 29, 2028 already passed.
+        // In leap year, day stays 29. thisYearBirthday = Feb 29 < Mar 1 → wraps.
+        // Next year 2029 is non-leap, so line 28 fires: day becomes 28.
+        var today = new DateOnly(2028, 3, 1);
+        var birth = new DateOnly(2000, 2, 29);
+        var expected = new DateOnly(2029, 2, 28).DayNumber - today.DayNumber;
+        Assert.Equal(expected, BirthdayCalculator.DaysUntil(birth, today));
+    }
+
+    [Fact]
     public void DaysUntil_Dec31Birthday_OnJan1_Returns364()
     {
         var today = new DateOnly(2026, 1, 1);

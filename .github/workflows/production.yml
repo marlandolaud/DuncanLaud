@@ -31,13 +31,13 @@ jobs:
 
       - name: Inject connection string
         run: |
-          sed -i 's|"DefaultConnection": ""|"DefaultConnection": "${{ secrets.DB_CONNECTIONSTRING }}"|g' DuncanLaud.WebUI/appsettings.Production.json
+          sed -i 's|"DefaultConnection": ""|"DefaultConnection": "${{ secrets.DB_CONNECTIONSTRING }}"|g' src/DuncanLaud.WebUI/appsettings.Production.json
 
       - name: Build the application
         run: dotnet build --configuration Release
 
       - name: Publish the application
-        run: dotnet publish DuncanLaud.WebUI/DuncanLaud.WebUI.csproj --configuration Release --output ./publish --runtime win-x86 --self-contained false -p:PublishTrimmed=false -p:PublishSingleFile=false
+        run: dotnet publish src/DuncanLaud.WebUI/DuncanLaud.WebUI.csproj --configuration Release --output ./publish --runtime win-x86 --self-contained false -p:PublishTrimmed=false -p:PublishSingleFile=false
 
       - name: Set ASPNETCORE_ENVIRONMENT in web.config
         run: |

@@ -20,7 +20,13 @@
       "Bash(curl -si 'https://duncanlaud.com/api/ping')",
       "Bash(find C:UserslandoClaudeCodeDuncanlaudDuncanLaud -name *Migration*.cs -o -name *DbContextModelSnapshot*)",
       "Bash(dotnet ef:*)",
-      "Bash(dotnet test:*)"
+      "Bash(dotnet test:*)",
+      "Bash(cp -r duncanlaud-react src/duncanlaud-react)",
+      "Bash(rm -rf duncanlaud-react)",
+      "Bash(mv DuncanLaud.Domain.Tests test/)",
+      "Bash(mv DuncanLaud.Infrastructure.Tests test/)",
+      "Bash(mv DuncanLaud.WebUI.Tests test/)",
+      "Bash(dotnet restore:*)"
     ]
   }
 }

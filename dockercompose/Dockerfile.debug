@@ -4,19 +4,19 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0
 WORKDIR /src
 
 # Copy project files for restore
-COPY DuncanLaud.WebUI/DuncanLaud.WebUI.csproj DuncanLaud.WebUI/
-COPY DuncanLaud.Domain/DuncanLaud.Domain.csproj DuncanLaud.Domain/
-COPY DuncanLaud.Infrastructure/DuncanLaud.Infrastructure.csproj DuncanLaud.Infrastructure/
-COPY DuncanLaud.DTOs/DuncanLaud.DTOs.csproj DuncanLaud.DTOs/
+COPY src/DuncanLaud.WebUI/DuncanLaud.WebUI.csproj src/DuncanLaud.WebUI/
+COPY src/DuncanLaud.Domain/DuncanLaud.Domain.csproj src/DuncanLaud.Domain/
+COPY src/DuncanLaud.Infrastructure/DuncanLaud.Infrastructure.csproj src/DuncanLaud.Infrastructure/
+COPY src/DuncanLaud.DTOs/DuncanLaud.DTOs.csproj src/DuncanLaud.DTOs/
 
-RUN dotnet restore DuncanLaud.WebUI/DuncanLaud.WebUI.csproj
+RUN dotnet restore src/DuncanLaud.WebUI/DuncanLaud.WebUI.csproj
 
 # Copy all source (volume mounts override at runtime for hot reload)
-COPY DuncanLaud.WebUI/ DuncanLaud.WebUI/
-COPY DuncanLaud.Domain/ DuncanLaud.Domain/
-COPY DuncanLaud.Infrastructure/ DuncanLaud.Infrastructure/
-COPY DuncanLaud.DTOs/ DuncanLaud.DTOs/
+COPY src/DuncanLaud.WebUI/ src/DuncanLaud.WebUI/
+COPY src/DuncanLaud.Domain/ src/DuncanLaud.Domain/
+COPY src/DuncanLaud.Infrastructure/ src/DuncanLaud.Infrastructure/
+COPY src/DuncanLaud.DTOs/ src/DuncanLaud.DTOs/
 
 EXPOSE 5000 5001
 
-ENTRYPOINT ["dotnet", "watch", "run", "--project", "DuncanLaud.WebUI", "--no-launch-profile"]
+ENTRYPOINT ["dotnet", "watch", "run", "--project", "src/DuncanLaud.WebUI", "--no-launch-profile"]

@@ -200,6 +200,61 @@ public class PersonServiceTests
         Assert.Equal("Smith", result.LastName);
     }
 
+    // ── AddPersonAsync — email ─────────────────────────
+
+    [Fact]
+    public async Task AddPersonAsync_ValidEmail_StoresEmail()
+    {
+        var cmd = ValidCommand(email: "alice@example.com");
+        var result = await _sut.AddPersonAsync(cmd, CancellationToken.None);
+
+        Assert.Equal("alice@example.com", result.Email);
+    }
+
+    [Fact]
+    public async Task AddPersonAsync_NullEmail_StoresNull()
+    {
+        var cmd = ValidCommand(email: null);
+        var result = await _sut.AddPersonAsync(cmd, CancellationToken.None);
+
+        Assert.Null(result.Email);
+    }
+
+    [Fact]
+    public async Task AddPersonAsync_EmptyEmail_StoresNull()
+    {
+        var cmd = ValidCommand(email: "  ");
+        var result = await _sut.AddPersonAsync(cmd, CancellationToken.None);
+
+        Assert.Null(result.Email);
+    }
+
+    [Fact]
+    public async Task AddPersonAsync_EmailWithWhitespace_Trimmed()
+    {
+        var cmd = ValidCommand(email: "  alice@example.com  ");
+        var result = await _sut.AddPersonAsync(cmd, CancellationToken.None);
+
+        Assert.Equal("alice@example.com", result.Email);
+    }
+
+    [Fact]
+    public async Task AddPersonAsync_InvalidEmail_Throws()
+    {
+        var cmd = ValidCommand(email: "not-an-email");
+        var ex = await Assert.ThrowsAsync<ArgumentException>(() => _sut.AddPersonAsync(cmd, CancellationToken.None));
+        Assert.Contains("Email", ex.Message);
+    }
+
+    [Fact]
+    public async Task AddPersonAsync_EmailTooLong_Throws()
+    {
+        var longEmail = new string('a', 246) + "@test.com"; // 255 chars total, > 254 limit
+        var cmd = ValidCommand(email: longEmail);
+        var ex = await Assert.ThrowsAsync<ArgumentException>(() => _sut.AddPersonAsync(cmd, CancellationToken.None));
+        Assert.Contains("254", ex.Message);
+    }
+
     // ── UpdatePersonAsync ──────────────────────────────
 
     [Fact]
@@ -368,6 +423,46 @@ public class PersonServiceTests
 
         Assert.Equal("B0b", result.FirstName);
         Assert.Equal("Jon3s", result.LastName);
+    }
+
+    [Fact]
+    public async Task UpdatePersonAsync_ValidEmail_UpdatesEmail()
+    {
+        var groupId = Guid.NewGuid();
+        var personId = Guid.NewGuid();
+        var existing = new Person
+        {
+            Id = personId, GroupId = groupId, FirstName = "Alice", LastName = "Smith",
+            BirthDate = new DateOnly(2000, 1, 1), CreatedAtUtc = DateTime.UtcNow
+        };
+        _repoMock.Setup(r => r.GetByIdAsync(personId, It.IsAny<CancellationToken>()))
+                 .ReturnsAsync(existing);
+
+        var cmd = new UpdatePersonCommand(personId, groupId, "Alice", "Smith", null,
+            new DateOnly(2000, 1, 1), null, null, false, "alice@example.com");
+
+        var result = await _sut.UpdatePersonAsync(cmd, CancellationToken.None);
+
+        Assert.Equal("alice@example.com", result.Email);
+    }
+
+    [Fact]
+    public async Task UpdatePersonAsync_InvalidEmail_Throws()
+    {
+        var groupId = Guid.NewGuid();
+        var personId = Guid.NewGuid();
+        var existing = new Person
+        {
+            Id = personId, GroupId = groupId, FirstName = "Alice", LastName = "Smith",
+            BirthDate = new DateOnly(2000, 1, 1), CreatedAtUtc = DateTime.UtcNow
+        };
+        _repoMock.Setup(r => r.GetByIdAsync(personId, It.IsAny<CancellationToken>()))
+                 .ReturnsAsync(existing);
+
+        var cmd = new UpdatePersonCommand(personId, groupId, "Alice", "Smith", null,
+            new DateOnly(2000, 1, 1), null, null, false, "bad-email");
+
+        await Assert.ThrowsAsync<ArgumentException>(() => _sut.UpdatePersonAsync(cmd, CancellationToken.None));
     }
 
     // ── GetAllByGroupAsync ──────────────────────────────

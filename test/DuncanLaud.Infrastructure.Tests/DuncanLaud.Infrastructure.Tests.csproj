@@ -5,6 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
+	<IsPublishable>false</IsPublishable>
   </PropertyGroup>
 
   <ItemGroup>
@@ -24,9 +25,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DuncanLaud.Domain\DuncanLaud.Domain.csproj" />
-    <ProjectReference Include="..\DuncanLaud.Infrastructure\DuncanLaud.Infrastructure.csproj" />
-    <ProjectReference Include="..\DuncanLaud.DTOs\DuncanLaud.DTOs.csproj" />
+    <ProjectReference Include="..\..\src\DuncanLaud.Domain\DuncanLaud.Domain.csproj" />
+    <ProjectReference Include="..\..\src\DuncanLaud.Infrastructure\DuncanLaud.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\DuncanLaud.DTOs\DuncanLaud.DTOs.csproj" />
   </ItemGroup>
 
 </Project>
