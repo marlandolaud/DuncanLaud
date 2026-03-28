@@ -11,7 +11,7 @@
  * @param {number} [opts.quality=0.80]      – JPEG quality 0-1
  * @returns {Promise<File>}  – a compressed JPEG File ready for FormData
  */
-export default function compressImage(file, { maxDimension = 500, quality = 0.70 } = {}) {
+export default function compressImage(file, { maxDimension = 200, quality = 0.50 } = {}) {
   return new Promise((resolve, reject) => {
     const img = new Image();
     const url = URL.createObjectURL(file);
