@@ -1,7 +1,22 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 export default function Splash() {
   const splashRef = useRef(null);
+  const [bgLoaded, setBgLoaded] = useState(false);
+
+  // Load background image via JS to select by viewport width (not DPR)
+  useEffect(() => {
+    const el = splashRef.current;
+    if (!el) return;
+    const isMobile = window.matchMedia('(max-width: 768px)').matches;
+    const src = isMobile ? '/img/backXS.jpg' : '/img/back.jpg';
+    const img = new Image();
+    img.onload = () => {
+      el.style.setProperty('--splash-bg', `url('${src}')`);
+      setBgLoaded(true);
+    };
+    img.src = src;
+  }, []);
 
   // Parallax scroll effect
   useEffect(() => {
@@ -10,7 +25,7 @@ export default function Splash() {
 
     const onScroll = () => {
       const offset = window.scrollY;
-      el.style.backgroundPositionY = `calc(50% + ${(offset * 0.3).toFixed(2)}px)`;
+      el.style.setProperty('--splash-bg-y', `calc(50% + ${(offset * 0.3).toFixed(2)}px)`);
     };
 
     window.addEventListener('scroll', onScroll, { passive: true });
@@ -18,7 +33,7 @@ export default function Splash() {
   }, []);
 
   return (
-    <div className="splash" ref={splashRef} role="banner">
+    <div className={`splash${bgLoaded ? ' splash--bg-loaded' : ''}`} ref={splashRef} role="banner">
       <div className="splash__overlay" />
       <div className="splash__content">
         <p className="splash__eyebrow">Poetry &amp; Prose</p>

@@ -1,8 +1,10 @@
 import defaultAvatar from '../../assets/default-avatar.svg';
 import { personImageUrl } from '../../services/groupApi';
 
-function MemberCard({ person, groupId, onEdit }) {
-  const imgSrc = person.hasImage ? personImageUrl(groupId, person.id) : defaultAvatar;
+function MemberCard({ person, groupId, onEdit, imageVer }) {
+  const imgSrc = person.hasImage
+    ? `${personImageUrl(groupId, person.id)}?v=${imageVer}`
+    : defaultAvatar;
   const displayName = person.preferredName || `${person.firstName} ${person.lastName}`;
 
   return (
@@ -32,7 +34,7 @@ function MemberCard({ person, groupId, onEdit }) {
   );
 }
 
-export default function MemberList({ persons, groupId, onEdit }) {
+export default function MemberList({ persons, groupId, onEdit, imageVer }) {
   if (persons.length === 0) {
     return (
       <p className="member-list__empty">
@@ -44,7 +46,7 @@ export default function MemberList({ persons, groupId, onEdit }) {
   return (
     <div className="member-list">
       {persons.map((person) => (
-        <MemberCard key={person.id} person={person} groupId={groupId} onEdit={onEdit} />
+        <MemberCard key={person.id} person={person} groupId={groupId} onEdit={onEdit} imageVer={imageVer} />
       ))}
     </div>
   );
