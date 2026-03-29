@@ -10,4 +10,5 @@ public interface IPersonService
     Task<Person> UpdatePersonAsync(UpdatePersonCommand command, CancellationToken ct = default);
     Task<IReadOnlyList<Person>> GetAllByGroupAsync(Guid groupId, CancellationToken ct = default);
     Task<IReadOnlyList<BirthdayResult>> GetUpcomingBirthdaysAsync(Guid groupId, CancellationToken ct = default);
+    Task DeletePersonAsync(Guid groupId, Guid personId, CancellationToken ct = default);
 }

@@ -23,6 +23,13 @@ public class PersonRepository : IPersonRepository
               .ToListAsync(ct)
               .ContinueWith(t => (IReadOnlyList<Person>)t.Result, ct);
 
+    public async Task DeleteAsync(Guid id, CancellationToken ct)
+    {
+        var person = await _db.Persons.FindAsync(new object[] { id }, ct);
+        if (person is not null)
+            _db.Persons.Remove(person);
+    }
+
     public Task SaveChangesAsync(CancellationToken ct)
         => _db.SaveChangesAsync(ct);
 }
