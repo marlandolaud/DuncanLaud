@@ -788,6 +788,8 @@ public class IntegrationTests : IClassFixture<IntegrationTests.TestAppFactory>
                 var dbName = _dbName;
                 services.AddDbContext<AppDbContext>(options =>
                     options.UseInMemoryDatabase(dbName));
+                services.AddDbContext<DuncanLaud.Analytics.AnalyticsDbContext>(options =>
+                    options.UseInMemoryDatabase(dbName + "_analytics"));
 
                 // Disable rate limiting for tests
                 services.Configure<IpRateLimitOptions>(opts =>
