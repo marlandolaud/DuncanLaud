@@ -241,7 +241,7 @@ export default function GroupLandingView({ groupId }) {
 
       <section className="group-birthdays">
         <h2 className="group-birthdays__heading">Upcoming Birthdays (next 60 days)</h2>
-        <BirthdayList birthdays={birthdays} groupId={groupId} />
+        <BirthdayList birthdays={birthdays} groupId={groupId} imageVer={imageVer} />
       </section>
     </div>
   );

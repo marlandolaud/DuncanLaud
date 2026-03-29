@@ -13,11 +13,13 @@ function humanizeDays(days) {
   return `in ${days} days`;
 }
 
-function BirthdayCard({ person, groupId }) {
+function BirthdayCard({ person, groupId, imageVer }) {
   const daysLabel = humanizeDays(person.daysUntil);
 
   const urgentClass = person.daysUntil <= 7 ? 'birthday-card--urgent' : '';
-  const imgSrc = person.hasImage ? personImageUrl(groupId, person.personId) : defaultAvatar;
+  const imgSrc = person.hasImage
+    ? `${personImageUrl(groupId, person.personId)}?v=${imageVer}`
+    : defaultAvatar;
 
   return (
     <div className={`birthday-card ${urgentClass}`}>
@@ -38,7 +40,7 @@ function BirthdayCard({ person, groupId }) {
   );
 }
 
-export default function BirthdayList({ birthdays, groupId }) {
+export default function BirthdayList({ birthdays, groupId, imageVer }) {
   if (birthdays.length === 0) {
     return (
       <p className="birthday-list__empty">
@@ -50,7 +52,7 @@ export default function BirthdayList({ birthdays, groupId }) {
   return (
     <div className="birthday-list">
       {birthdays.map((person) => (
-        <BirthdayCard key={person.personId} person={person} groupId={groupId} />
+        <BirthdayCard key={person.personId} person={person} groupId={groupId} imageVer={imageVer} />
       ))}
     </div>
   );
