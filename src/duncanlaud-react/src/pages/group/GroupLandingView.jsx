@@ -21,6 +21,7 @@ export default function GroupLandingView({ groupId }) {
   const [birthdays, setBirthdays] = useState([]);
   const [persons, setPersons] = useState([]);
   const [editPersonId, setEditPersonId] = useState(null);
+  const [imageVer, setImageVer] = useState(0);
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
 
@@ -81,6 +82,7 @@ export default function GroupLandingView({ groupId }) {
 
   function handlePersonUpdated() {
     Promise.all([loadBirthdays(), loadPersons()]).then(() => {
+      setImageVer((v) => v + 1);
       setEditPersonId(null);
       setView(STATE.VIEW_MEMBERS);
     });
@@ -199,7 +201,7 @@ export default function GroupLandingView({ groupId }) {
 
         <section className="group-members">
           <h2 className="group-members__heading">All Members ({persons.length})</h2>
-          <MemberList persons={persons} groupId={groupId} onEdit={handleEditPerson} />
+          <MemberList persons={persons} groupId={groupId} onEdit={handleEditPerson} imageVer={imageVer} />
         </section>
       </div>
     );
