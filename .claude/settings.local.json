@@ -28,7 +28,8 @@
       "Bash(mv DuncanLaud.WebUI.Tests test/)",
       "Bash(dotnet restore:*)",
       "Bash(npx vite:*)",
-      "Bash(dotnet clean:*)"
+      "Bash(dotnet clean:*)",
+      "Bash(dotnet tool:*)"
     ]
   }
 }

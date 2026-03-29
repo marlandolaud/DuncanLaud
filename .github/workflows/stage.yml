@@ -31,8 +31,8 @@ jobs:
 
       - name: Inject connection string
         run: |
-          sed -i 's|"DefaultConnection": ""|"DefaultConnection": "${{ secrets.DB_CONNECTIONSTRING }}"|g' src/DuncanLaud.WebUI/appsettings.Staging.json
-          sed -i 's|"Analytics": ""|"Analytics": "${{ secrets.DB_CONNECTIONSTRING }}"|g' src/DuncanLaud.WebUI/appsettings.Staging.json
+          sed -i 's|"DefaultConnection": ""|"DefaultConnection": "${{ secrets.DB_CONNECTIONSTRINGSTAGE }}"|g' src/DuncanLaud.WebUI/appsettings.Staging.json
+          sed -i 's|"Analytics": ""|"Analytics": "${{ secrets.DB_CONNECTIONSTRINGSTAGE }}"|g' src/DuncanLaud.WebUI/appsettings.Staging.json
 
       - name: Build the application
         run: dotnet build --configuration Release

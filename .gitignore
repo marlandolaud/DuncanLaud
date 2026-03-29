@@ -341,3 +341,4 @@ healthchecksdb
 # Docker environment secrets
 dockercompose/.env
 .env
+/coverage
