@@ -1,6 +1,12 @@
 import defaultAvatar from '../../assets/default-avatar.svg';
 import { personImageUrl } from '../../services/groupApi';
 
+function formatBirthDate(dateStr) {
+  if (!dateStr) return '';
+  const [year, month, day] = dateStr.split('-').map(Number);
+  return new Date(year, month - 1, day).toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
+}
+
 function MemberCard({ person, groupId, onEdit, imageVer }) {
   const imgSrc = person.hasImage
     ? `${personImageUrl(groupId, person.id)}?v=${imageVer}`
@@ -20,7 +26,7 @@ function MemberCard({ person, groupId, onEdit, imageVer }) {
         {person.preferredName && (
           <span className="member-card__full-name">{person.firstName} {person.lastName}</span>
         )}
-        <span className="member-card__date">Born {person.birthDate}</span>
+        <span className="member-card__date">Born {formatBirthDate(person.birthDate)}</span>
       </div>
       <button
         className="member-card__edit-btn"
