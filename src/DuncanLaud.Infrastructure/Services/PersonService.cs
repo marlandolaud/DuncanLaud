@@ -101,6 +101,18 @@ public class PersonService : IPersonService
             today);
     }
 
+    public async Task DeletePersonAsync(Guid groupId, Guid personId, CancellationToken ct)
+    {
+        var person = await _personRepo.GetByIdAsync(personId, ct)
+            ?? throw new KeyNotFoundException($"Person {personId} not found.");
+
+        if (person.GroupId != groupId)
+            throw new KeyNotFoundException($"Person {personId} does not belong to group {groupId}.");
+
+        await _personRepo.DeleteAsync(personId, ct);
+        await _personRepo.SaveChangesAsync(ct);
+    }
+
     private static void ValidateFields(string firstName, string lastName, string? preferredName, DateOnly birthDate)
     {
         if (!PersonValidator.IsValidName(firstName))

@@ -536,6 +536,88 @@ public class GroupControllerTests
         Assert.True(response.HasImage);
     }
 
+    // ── DeletePerson ──────────────────────────────────
+
+    [Fact]
+    public async Task DeletePerson_GroupNotFound_Returns404()
+    {
+        _groupServiceMock.Setup(s => s.GetGroupAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+                         .ReturnsAsync((Group?)null);
+
+        var result = await _sut.DeletePerson(Guid.NewGuid(), Guid.NewGuid(), CancellationToken.None);
+
+        Assert.IsType<NotFoundResult>(result);
+    }
+
+    [Fact]
+    public async Task DeletePerson_Valid_Returns204()
+    {
+        var groupId = Guid.NewGuid();
+        var personId = Guid.NewGuid();
+        _groupServiceMock.Setup(s => s.GetGroupAsync(groupId, It.IsAny<CancellationToken>()))
+                         .ReturnsAsync(new Group { Id = groupId, Name = "G", Members = new List<Person>() });
+        _personServiceMock.Setup(s => s.DeletePersonAsync(groupId, personId, It.IsAny<CancellationToken>()))
+                          .Returns(Task.CompletedTask);
+
+        var result = await _sut.DeletePerson(groupId, personId, CancellationToken.None);
+
+        Assert.IsType<NoContentResult>(result);
+        _personServiceMock.Verify(s => s.DeletePersonAsync(groupId, personId, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task DeletePerson_PersonNotFound_Returns404()
+    {
+        var groupId = Guid.NewGuid();
+        _groupServiceMock.Setup(s => s.GetGroupAsync(groupId, It.IsAny<CancellationToken>()))
+                         .ReturnsAsync(new Group { Id = groupId, Name = "G", Members = new List<Person>() });
+        _personServiceMock.Setup(s => s.DeletePersonAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+                          .ThrowsAsync(new KeyNotFoundException("Person not found."));
+
+        var result = await _sut.DeletePerson(groupId, Guid.NewGuid(), CancellationToken.None);
+
+        Assert.IsType<NotFoundResult>(result);
+    }
+
+    // ── UpdateGroupName ────────────────────────────────
+
+    [Fact]
+    public async Task UpdateGroupName_GroupNotFound_Returns404()
+    {
+        _groupServiceMock.Setup(s => s.UpdateGroupNameAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                         .ThrowsAsync(new KeyNotFoundException("Group not found."));
+
+        var result = await _sut.UpdateGroupName(Guid.NewGuid(), new UpdateGroupNameRequest("New"), CancellationToken.None);
+
+        Assert.IsType<NotFoundResult>(result);
+    }
+
+    [Fact]
+    public async Task UpdateGroupName_Valid_Returns200WithUpdatedGroup()
+    {
+        var id = Guid.NewGuid();
+        var group = new Group { Id = id, Name = "Updated", CreatedAtUtc = DateTime.UtcNow, Members = new List<Person>() };
+        _groupServiceMock.Setup(s => s.UpdateGroupNameAsync(id, "Updated", It.IsAny<CancellationToken>()))
+                         .ReturnsAsync(group);
+
+        var result = await _sut.UpdateGroupName(id, new UpdateGroupNameRequest("Updated"), CancellationToken.None);
+
+        var ok = Assert.IsType<OkObjectResult>(result);
+        var response = Assert.IsType<GroupResponse>(ok.Value);
+        Assert.Equal("Updated", response.Name);
+    }
+
+    [Fact]
+    public async Task UpdateGroupName_InvalidName_Returns400()
+    {
+        _groupServiceMock.Setup(s => s.UpdateGroupNameAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                         .ThrowsAsync(new ArgumentException("Group name contains inappropriate content."));
+
+        var result = await _sut.UpdateGroupName(Guid.NewGuid(), new UpdateGroupNameRequest("shit"), CancellationToken.None);
+
+        Assert.IsType<BadRequestObjectResult>(result);
+    }
+
     // ── GetBirthdays ───────────────────────────────────
 
     [Fact]

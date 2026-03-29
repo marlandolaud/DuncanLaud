@@ -176,6 +176,36 @@ public class RepositoryTests : IDisposable
         Assert.IsAssignableFrom<IReadOnlyList<Person>>(result);
     }
 
+    [Fact]
+    public async Task PersonRepo_DeleteAsync_ExistingPerson_RemovesPerson()
+    {
+        var repo = new PersonRepository(_db);
+        var groupId = Guid.NewGuid();
+        _db.Groups.Add(new Group { Id = groupId, Name = "G", CreatedAtUtc = DateTime.UtcNow });
+        var personId = Guid.NewGuid();
+        _db.Persons.Add(new Person
+        {
+            Id = personId, GroupId = groupId, FirstName = "Al", LastName = "Sm",
+            BirthDate = new DateOnly(2000, 1, 1), CreatedAtUtc = DateTime.UtcNow
+        });
+        await _db.SaveChangesAsync();
+
+        await repo.DeleteAsync(personId, CancellationToken.None);
+        await repo.SaveChangesAsync(CancellationToken.None);
+
+        Assert.Null(await _db.Persons.FindAsync(personId));
+    }
+
+    [Fact]
+    public async Task PersonRepo_DeleteAsync_NonExistentPerson_DoesNotThrow()
+    {
+        var repo = new PersonRepository(_db);
+        // Should not throw even if the ID doesn't exist
+        await repo.DeleteAsync(Guid.NewGuid(), CancellationToken.None);
+        await repo.SaveChangesAsync(CancellationToken.None);
+        Assert.Equal(0, await _db.Persons.CountAsync());
+    }
+
     // ── AppDbContext configuration tests ───────────────
 
     [Fact]

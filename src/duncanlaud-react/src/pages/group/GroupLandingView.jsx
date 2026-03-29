@@ -1,5 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
-import { fetchGroup, createGroup, fetchBirthdays, fetchPersons } from '../../services/groupApi';
+import {
+  fetchGroup, createGroup, fetchBirthdays, fetchPersons,
+  deletePerson, updateGroupName,
+} from '../../services/groupApi';
 import AddPersonForm from './AddPersonForm';
 import EditPersonForm from './EditPersonForm';
 import BirthdayList from './BirthdayList';
@@ -15,6 +18,63 @@ const STATE = {
   ERROR: 'error',
 };
 
+const PencilIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="16" height="16" aria-hidden="true">
+    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+  </svg>
+);
+
+function GroupNameHeader({ name, editing, nameInput, nameSaving, nameError, onNameInput, onEditStart, onSave, onCancel }) {
+  if (editing) {
+    return (
+      <div className="group-header__name-edit">
+        <input
+          className="group-header__name-input"
+          value={nameInput}
+          onChange={(e) => onNameInput(e.target.value)}
+          onKeyDown={(e) => { if (e.key === 'Enter') onSave(); if (e.key === 'Escape') onCancel(); }}
+          disabled={nameSaving}
+          maxLength={100}
+          aria-label="Group name"
+          // eslint-disable-next-line jsx-a11y/no-autofocus
+          autoFocus
+        />
+        <button
+          className="group-header__name-save-btn"
+          onClick={onSave}
+          disabled={nameSaving}
+          type="button"
+        >
+          {nameSaving ? '…' : 'Save'}
+        </button>
+        <button
+          className="group-header__name-cancel-btn"
+          onClick={onCancel}
+          disabled={nameSaving}
+          type="button"
+        >
+          Cancel
+        </button>
+        {nameError && <span className="group-header__name-error" role="alert">{nameError}</span>}
+      </div>
+    );
+  }
+  return (
+    <div className="group-header__name-row">
+      <h1 className="group-header__name">{name}</h1>
+      <button
+        className="group-header__name-edit-btn"
+        onClick={onEditStart}
+        type="button"
+        aria-label="Edit group name"
+      >
+        <PencilIcon />
+      </button>
+    </div>
+  );
+}
+
 export default function GroupLandingView({ groupId }) {
   const [view, setView] = useState(STATE.LOADING);
   const [group, setGroup] = useState(null);
@@ -24,6 +84,12 @@ export default function GroupLandingView({ groupId }) {
   const [imageVer, setImageVer] = useState(0);
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
+
+  // group-name inline edit
+  const [editingName, setEditingName] = useState(false);
+  const [nameInput, setNameInput] = useState('');
+  const [nameSaving, setNameSaving] = useState(false);
+  const [nameError, setNameError] = useState('');
 
   const loadBirthdays = useCallback(async () => {
     try {
@@ -93,9 +159,45 @@ export default function GroupLandingView({ groupId }) {
     setView(STATE.EDIT_MEMBER);
   }
 
+  async function handleDeletePerson(personId) {
+    try {
+      await deletePerson(groupId, personId);
+      await loadPersons();
+    } catch {
+      // deletion failed silently — list will be unchanged
+    }
+  }
+
   async function handleViewMembers() {
     await loadPersons();
     setView(STATE.VIEW_MEMBERS);
+  }
+
+  function handleEditNameStart() {
+    setNameInput(group?.name ?? '');
+    setNameError('');
+    setEditingName(true);
+  }
+
+  async function handleSaveName() {
+    const trimmed = nameInput.trim();
+    if (!trimmed) { setNameError('Name is required.'); return; }
+    setNameSaving(true);
+    setNameError('');
+    try {
+      const updated = await updateGroupName(groupId, trimmed);
+      setGroup(updated);
+      setEditingName(false);
+    } catch (err) {
+      setNameError(err.message || 'Could not update group name.');
+    } finally {
+      setNameSaving(false);
+    }
+  }
+
+  function handleCancelName() {
+    setEditingName(false);
+    setNameError('');
   }
 
   async function copyLink() {
@@ -104,7 +206,6 @@ export default function GroupLandingView({ groupId }) {
       if (navigator.clipboard) {
         await navigator.clipboard.writeText(url);
       } else {
-        // Fallback for non-secure contexts
         const el = document.createElement('textarea');
         el.value = url;
         el.style.cssText = 'position:fixed;top:0;left:0;opacity:0';
@@ -120,6 +221,18 @@ export default function GroupLandingView({ groupId }) {
       // clipboard write failed silently
     }
   }
+
+  const nameHeaderProps = {
+    name: group?.name,
+    editing: editingName,
+    nameInput,
+    nameSaving,
+    nameError,
+    onNameInput: setNameInput,
+    onEditStart: handleEditNameStart,
+    onSave: handleSaveName,
+    onCancel: handleCancelName,
+  };
 
   if (view === STATE.LOADING) {
     return (
@@ -145,7 +258,7 @@ export default function GroupLandingView({ groupId }) {
     return (
       <div className="group-page">
         <div className="group-header">
-          <h1 className="group-header__name">{group?.name}</h1>
+          <GroupNameHeader {...nameHeaderProps} />
           <div className="group-header__share">
             <span className="group-header__share-label">Share link:</span>
             <code className="group-header__share-url">/mygroup/{groupId}</code>
@@ -168,7 +281,7 @@ export default function GroupLandingView({ groupId }) {
     return (
       <div className="group-page">
         <div className="group-header">
-          <h1 className="group-header__name">{group?.name}</h1>
+          <GroupNameHeader {...nameHeaderProps} />
         </div>
         <EditPersonForm
           groupId={groupId}
@@ -187,7 +300,7 @@ export default function GroupLandingView({ groupId }) {
     return (
       <div className="group-page">
         <div className="group-header">
-          <h1 className="group-header__name">{group?.name}</h1>
+          <GroupNameHeader {...nameHeaderProps} />
           <div className="group-header__actions">
             <button
               className="group-header__back-btn"
@@ -201,7 +314,13 @@ export default function GroupLandingView({ groupId }) {
 
         <section className="group-members">
           <h2 className="group-members__heading">All Members ({persons.length})</h2>
-          <MemberList persons={persons} groupId={groupId} onEdit={handleEditPerson} imageVer={imageVer} />
+          <MemberList
+            persons={persons}
+            groupId={groupId}
+            onEdit={handleEditPerson}
+            onDelete={handleDeletePerson}
+            imageVer={imageVer}
+          />
         </section>
       </div>
     );
@@ -211,7 +330,7 @@ export default function GroupLandingView({ groupId }) {
   return (
     <div className="group-page">
       <div className="group-header">
-        <h1 className="group-header__name">{group?.name}</h1>
+        <GroupNameHeader {...nameHeaderProps} />
         <div className="group-header__actions">
           <div className="group-header__share">
             <span className="group-header__share-label">Share link:</span>

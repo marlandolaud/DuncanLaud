@@ -200,6 +200,33 @@ public class PersonServiceTests
         Assert.Equal("Smith", result.LastName);
     }
 
+    // ── AddPersonAsync — profanity ────────────────────
+
+    [Fact]
+    public async Task AddPersonAsync_ProfaneFirstName_Throws()
+    {
+        // "shit" passes Sanitize (alphanumeric) but triggers CheckProfanity → line 139 covered
+        var cmd = ValidCommand(firstName: "shit");
+        var ex = await Assert.ThrowsAsync<ArgumentException>(() => _sut.AddPersonAsync(cmd, CancellationToken.None));
+        Assert.Contains("inappropriate", ex.Message);
+    }
+
+    [Fact]
+    public async Task AddPersonAsync_ProfaneLastName_Throws()
+    {
+        var cmd = ValidCommand(lastName: "shit");
+        var ex = await Assert.ThrowsAsync<ArgumentException>(() => _sut.AddPersonAsync(cmd, CancellationToken.None));
+        Assert.Contains("inappropriate", ex.Message);
+    }
+
+    [Fact]
+    public async Task AddPersonAsync_ProfanePreferredName_Throws()
+    {
+        var cmd = ValidCommand(preferredName: "shit");
+        var ex = await Assert.ThrowsAsync<ArgumentException>(() => _sut.AddPersonAsync(cmd, CancellationToken.None));
+        Assert.Contains("inappropriate", ex.Message);
+    }
+
     // ── AddPersonAsync — email ─────────────────────────
 
     [Fact]
@@ -253,6 +280,15 @@ public class PersonServiceTests
         var cmd = ValidCommand(email: longEmail);
         var ex = await Assert.ThrowsAsync<ArgumentException>(() => _sut.AddPersonAsync(cmd, CancellationToken.None));
         Assert.Contains("254", ex.Message);
+    }
+
+    [Fact]
+    public async Task AddPersonAsync_EmailWithDisplayName_Throws()
+    {
+        // MailAddress parses "Display <addr>" but addr.Address != original input → line 155 covered
+        var cmd = ValidCommand(email: "\"Alice Smith\" <alice@example.com>");
+        var ex = await Assert.ThrowsAsync<ArgumentException>(() => _sut.AddPersonAsync(cmd, CancellationToken.None));
+        Assert.Contains("Email", ex.Message);
     }
 
     // ── UpdatePersonAsync ──────────────────────────────
@@ -612,6 +648,75 @@ public class PersonServiceTests
 
         Assert.Single(result);
         Assert.False(result[0].HasImage);
+    }
+
+    // ── DeletePersonAsync ──────────────────────────────
+
+    [Fact]
+    public async Task DeletePersonAsync_Valid_DeletesAndSaves()
+    {
+        var groupId = Guid.NewGuid();
+        var personId = Guid.NewGuid();
+        var existing = new Person
+        {
+            Id = personId, GroupId = groupId, FirstName = "Alice", LastName = "Smith",
+            BirthDate = new DateOnly(2000, 1, 1), CreatedAtUtc = DateTime.UtcNow
+        };
+        _repoMock.Setup(r => r.GetByIdAsync(personId, It.IsAny<CancellationToken>()))
+                 .ReturnsAsync(existing);
+
+        await _sut.DeletePersonAsync(groupId, personId, CancellationToken.None);
+
+        _repoMock.Verify(r => r.DeleteAsync(personId, It.IsAny<CancellationToken>()), Times.Once);
+        _repoMock.Verify(r => r.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task DeletePersonAsync_PersonNotFound_ThrowsKeyNotFound()
+    {
+        _repoMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+                 .ReturnsAsync((Person?)null);
+
+        await Assert.ThrowsAsync<KeyNotFoundException>(
+            () => _sut.DeletePersonAsync(Guid.NewGuid(), Guid.NewGuid(), CancellationToken.None));
+    }
+
+    [Fact]
+    public async Task DeletePersonAsync_WrongGroup_ThrowsKeyNotFound()
+    {
+        var personId = Guid.NewGuid();
+        var existing = new Person
+        {
+            Id = personId, GroupId = Guid.NewGuid(), FirstName = "Alice", LastName = "Smith",
+            BirthDate = new DateOnly(2000, 1, 1), CreatedAtUtc = DateTime.UtcNow
+        };
+        _repoMock.Setup(r => r.GetByIdAsync(personId, It.IsAny<CancellationToken>()))
+                 .ReturnsAsync(existing);
+
+        await Assert.ThrowsAsync<KeyNotFoundException>(
+            () => _sut.DeletePersonAsync(Guid.NewGuid(), personId, CancellationToken.None));
+    }
+
+    [Fact]
+    public async Task GetUpcomingBirthdaysAsync_LeapYearBirthday_DoesNotThrow()
+    {
+        var groupId = Guid.NewGuid();
+        var person = new Person
+        {
+            Id = Guid.NewGuid(),
+            GroupId = groupId,
+            FirstName = "Alice",
+            LastName = "Smith",
+            BirthDate = new DateOnly(2000, 2, 29), // leap year birthday
+            CreatedAtUtc = DateTime.UtcNow
+        };
+        _repoMock.Setup(r => r.GetByGroupIdAsync(groupId, It.IsAny<CancellationToken>()))
+                 .ReturnsAsync(new List<Person> { person });
+
+        // Should not throw regardless of current date (leap year handling exercised)
+        var result = await _sut.GetUpcomingBirthdaysAsync(groupId, CancellationToken.None);
+
+        Assert.NotNull(result);
     }
 
     [Fact]

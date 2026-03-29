@@ -1,5 +1,6 @@
 using DuncanLaud.Domain.Commands;
 using DuncanLaud.DTOs;
+using System.ComponentModel.DataAnnotations;
 using DuncanLaud.Infrastructure.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -254,6 +255,47 @@ public class GroupController : ControllerBase
             return NotFound();
 
         return File(person.ImageData, person.ImageContentType ?? "image/jpeg");
+    }
+
+    [HttpDelete("{groupId:guid}/person/{personId:guid}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DeletePerson(Guid groupId, Guid personId, CancellationToken ct)
+    {
+        var group = await _groupService.GetGroupAsync(groupId, ct);
+        if (group is null)
+            return NotFound();
+
+        try
+        {
+            await _personService.DeletePersonAsync(groupId, personId, ct);
+            return NoContent();
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
+    }
+
+    [HttpPatch("{groupId:guid}/name")]
+    [ProducesResponseType(typeof(GroupResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> UpdateGroupName(Guid groupId, [FromBody] UpdateGroupNameRequest dto, CancellationToken ct)
+    {
+        try
+        {
+            var group = await _groupService.UpdateGroupNameAsync(groupId, dto.Name, ct);
+            return Ok(new GroupResponse(group.Id, group.Name, group.CreatedAtUtc, group.Members.Count));
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
     }
 
     [HttpGet("{groupId:guid}/birthdays")]

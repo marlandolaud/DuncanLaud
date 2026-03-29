@@ -61,6 +61,18 @@ export function updatePerson(groupId, personId, { firstName, lastName, preferred
   return request(`${BASE}/${groupId}/person/${personId}`, { method: 'PUT', body: form });
 }
 
+export function deletePerson(groupId, personId) {
+  return request(`${BASE}/${groupId}/person/${personId}`, { method: 'DELETE' });
+}
+
+export function updateGroupName(groupId, name) {
+  return request(`${BASE}/${groupId}/name`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name }),
+  });
+}
+
 export function fetchBirthdays(groupId) {
   return request(`${BASE}/${groupId}/birthdays`);
 }

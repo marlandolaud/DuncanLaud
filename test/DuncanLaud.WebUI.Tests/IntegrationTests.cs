@@ -578,6 +578,133 @@ public class IntegrationTests : IClassFixture<IntegrationTests.TestAppFactory>
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
 
+    // ── DeletePerson ─────────────────────────────────
+
+    [Fact]
+    public async Task DeletePerson_Valid_Returns204_AndPersonGone()
+    {
+        using var client = CreateClient();
+        var groupId = Guid.NewGuid();
+        await client.PostAsJsonAsync("/api/group", new CreateGroupRequest(groupId, "Delete Test"));
+
+        using var form = new MultipartFormDataContent
+        {
+            { new StringContent("Alice"), "firstName" },
+            { new StringContent("Smith"), "lastName" },
+            { new StringContent("2000-01-15"), "birthDate" }
+        };
+        var addResponse = await client.PostAsync($"/api/group/{groupId}/person", form);
+        var person = await addResponse.Content.ReadFromJsonAsync<PersonResponse>(JsonOpts);
+
+        var deleteResponse = await client.DeleteAsync($"/api/group/{groupId}/person/{person!.Id}");
+
+        Assert.Equal(HttpStatusCode.NoContent, deleteResponse.StatusCode);
+
+        var getResponse = await client.GetAsync($"/api/group/{groupId}/person/{person.Id}");
+        Assert.Equal(HttpStatusCode.NotFound, getResponse.StatusCode);
+    }
+
+    [Fact]
+    public async Task DeletePerson_PersonNotFound_Returns404()
+    {
+        using var client = CreateClient();
+        var groupId = Guid.NewGuid();
+        await client.PostAsJsonAsync("/api/group", new CreateGroupRequest(groupId, "Delete 404 Test"));
+
+        var response = await client.DeleteAsync($"/api/group/{groupId}/person/{Guid.NewGuid()}");
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task DeletePerson_GroupNotFound_Returns404()
+    {
+        using var client = CreateClient();
+        var response = await client.DeleteAsync($"/api/group/{Guid.NewGuid()}/person/{Guid.NewGuid()}");
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
+    // ── UpdateGroupName ───────────────────────────────
+
+    [Fact]
+    public async Task UpdateGroupName_Valid_Returns200WithNewName()
+    {
+        using var client = CreateClient();
+        var groupId = Guid.NewGuid();
+        await client.PostAsJsonAsync("/api/group", new CreateGroupRequest(groupId, "OriginalName"));
+
+        var response = await client.PatchAsJsonAsync($"/api/group/{groupId}/name", new { name = "UpdatedName" });
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var body = await response.Content.ReadFromJsonAsync<GroupResponse>(JsonOpts);
+        Assert.Equal("UpdatedName", body!.Name);
+    }
+
+    [Fact]
+    public async Task UpdateGroupName_GroupNotFound_Returns404()
+    {
+        using var client = CreateClient();
+        var response = await client.PatchAsJsonAsync($"/api/group/{Guid.NewGuid()}/name", new { name = "NewName" });
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task UpdateGroupName_InvalidName_Returns400()
+    {
+        using var client = CreateClient();
+        var groupId = Guid.NewGuid();
+        await client.PostAsJsonAsync("/api/group", new CreateGroupRequest(groupId, "ValidGroup"));
+
+        var response = await client.PatchAsJsonAsync($"/api/group/{groupId}/name", new { name = "shit" });
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task UpdateGroupName_EmptyName_Returns400()
+    {
+        using var client = CreateClient();
+        var groupId = Guid.NewGuid();
+        await client.PostAsJsonAsync("/api/group", new CreateGroupRequest(groupId, "ValidGroup"));
+
+        var response = await client.PatchAsJsonAsync($"/api/group/{groupId}/name", new { name = "!@#" });
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task DeletePerson_ThenBirthdayListUpdates()
+    {
+        using var client = CreateClient();
+        var groupId = Guid.NewGuid();
+        await client.PostAsJsonAsync("/api/group", new CreateGroupRequest(groupId, "Birthday Delete Test"));
+
+        var upcoming = DateOnly.FromDateTime(DateTime.UtcNow).AddDays(5);
+        var birthDate = new DateOnly(1990, upcoming.Month, upcoming.Day);
+
+        using var form = new MultipartFormDataContent
+        {
+            { new StringContent("Alice"), "firstName" },
+            { new StringContent("Smith"), "lastName" },
+            { new StringContent(birthDate.ToString("yyyy-MM-dd")), "birthDate" }
+        };
+        var addResponse = await client.PostAsync($"/api/group/{groupId}/person", form);
+        var person = await addResponse.Content.ReadFromJsonAsync<PersonResponse>(JsonOpts);
+
+        // Verify birthday appears
+        var birthdaysBefore = await (await client.GetAsync($"/api/group/{groupId}/birthdays"))
+            .Content.ReadFromJsonAsync<List<BirthdayResponse>>(JsonOpts);
+        Assert.Single(birthdaysBefore!);
+
+        // Delete person
+        await client.DeleteAsync($"/api/group/{groupId}/person/{person!.Id}");
+
+        // Verify birthday list is now empty
+        var birthdaysAfter = await (await client.GetAsync($"/api/group/{groupId}/birthdays"))
+            .Content.ReadFromJsonAsync<List<BirthdayResponse>>(JsonOpts);
+        Assert.Empty(birthdaysAfter!);
+    }
+
     // ── Full flow ──────────────────────────────────────
 
     [Fact]

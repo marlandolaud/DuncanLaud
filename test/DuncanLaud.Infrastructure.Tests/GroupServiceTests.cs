@@ -1,6 +1,7 @@
 using DuncanLaud.Infrastructure.Entities;
 using DuncanLaud.Infrastructure.Interfaces;
 using DuncanLaud.Infrastructure.Services;
+using Microsoft.EntityFrameworkCore;
 using Moq;
 
 namespace DuncanLaud.Infrastructure.Tests;
@@ -175,6 +176,26 @@ public class GroupServiceTests
     }
 
     [Fact]
+    public async Task GetOrCreateGroupAsync_ConcurrentInsert_ReturnsExistingGroup()
+    {
+        // Simulates React StrictMode double-fire: SaveChanges throws DbUpdateException,
+        // then a second GetById returns the row inserted by the winning request.
+        var id = Guid.NewGuid();
+        var group = new Group { Id = id, Name = "Test", CreatedAtUtc = DateTime.UtcNow, Members = new List<Person>() };
+
+        _repoMock.SetupSequence(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>()))
+                 .ReturnsAsync((Group?)null)  // first call: doesn't exist yet
+                 .ReturnsAsync(group);         // second call (from catch): exists
+
+        _repoMock.Setup(r => r.SaveChangesAsync(It.IsAny<CancellationToken>()))
+                 .ThrowsAsync(new DbUpdateException("Concurrent insert", new Exception()));
+
+        var result = await _sut.GetOrCreateGroupAsync(id, "Test", CancellationToken.None);
+
+        Assert.Equal("Test", result.Name);
+    }
+
+    [Fact]
     public async Task GetOrCreateGroupAsync_AlphanumericName_Succeeds()
     {
         _repoMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
@@ -183,5 +204,111 @@ public class GroupServiceTests
         var result = await _sut.GetOrCreateGroupAsync(Guid.NewGuid(), "BirthdayGroup2025", CancellationToken.None);
 
         Assert.Equal("BirthdayGroup2025", result.Name);
+    }
+
+    // ── UpdateGroupNameAsync ───────────────────────────
+
+    [Fact]
+    public async Task UpdateGroupNameAsync_GroupNotFound_ThrowsKeyNotFound()
+    {
+        _repoMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+                 .ReturnsAsync((Group?)null);
+
+        await Assert.ThrowsAsync<KeyNotFoundException>(
+            () => _sut.UpdateGroupNameAsync(Guid.NewGuid(), "NewName", CancellationToken.None));
+    }
+
+    [Fact]
+    public async Task UpdateGroupNameAsync_ValidName_UpdatesGroupName()
+    {
+        var id = Guid.NewGuid();
+        var group = new Group { Id = id, Name = "OldName", CreatedAtUtc = DateTime.UtcNow, Members = new List<Person>() };
+        _repoMock.Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>()))
+                 .ReturnsAsync(group);
+
+        var result = await _sut.UpdateGroupNameAsync(id, "NewName", CancellationToken.None);
+
+        Assert.Equal("NewName", result.Name);
+        _repoMock.Verify(r => r.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task UpdateGroupNameAsync_SanitizesName()
+    {
+        var id = Guid.NewGuid();
+        var group = new Group { Id = id, Name = "Old", CreatedAtUtc = DateTime.UtcNow, Members = new List<Person>() };
+        _repoMock.Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>()))
+                 .ReturnsAsync(group);
+
+        var result = await _sut.UpdateGroupNameAsync(id, "New Name!", CancellationToken.None);
+
+        Assert.Equal("NewName", result.Name);
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    public async Task UpdateGroupNameAsync_EmptyOrWhitespaceName_Throws(string name)
+    {
+        var id = Guid.NewGuid();
+        var group = new Group { Id = id, Name = "Old", CreatedAtUtc = DateTime.UtcNow, Members = new List<Person>() };
+        _repoMock.Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>()))
+                 .ReturnsAsync(group);
+
+        var ex = await Assert.ThrowsAsync<ArgumentException>(
+            () => _sut.UpdateGroupNameAsync(id, name, CancellationToken.None));
+        Assert.Contains("required", ex.Message);
+    }
+
+    [Fact]
+    public async Task UpdateGroupNameAsync_NameTooShort_Throws()
+    {
+        var id = Guid.NewGuid();
+        var group = new Group { Id = id, Name = "Old", CreatedAtUtc = DateTime.UtcNow, Members = new List<Person>() };
+        _repoMock.Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>()))
+                 .ReturnsAsync(group);
+
+        var ex = await Assert.ThrowsAsync<ArgumentException>(
+            () => _sut.UpdateGroupNameAsync(id, "A", CancellationToken.None));
+        Assert.Contains("between 2 and 100", ex.Message);
+    }
+
+    [Fact]
+    public async Task UpdateGroupNameAsync_NameTooLong_Throws()
+    {
+        var id = Guid.NewGuid();
+        var group = new Group { Id = id, Name = "Old", CreatedAtUtc = DateTime.UtcNow, Members = new List<Person>() };
+        _repoMock.Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>()))
+                 .ReturnsAsync(group);
+
+        var ex = await Assert.ThrowsAsync<ArgumentException>(
+            () => _sut.UpdateGroupNameAsync(id, new string('A', 101), CancellationToken.None));
+        Assert.Contains("between 2 and 100", ex.Message);
+    }
+
+    [Fact]
+    public async Task UpdateGroupNameAsync_SpecialCharsOnly_Throws()
+    {
+        var id = Guid.NewGuid();
+        var group = new Group { Id = id, Name = "Old", CreatedAtUtc = DateTime.UtcNow, Members = new List<Person>() };
+        _repoMock.Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>()))
+                 .ReturnsAsync(group);
+
+        var ex = await Assert.ThrowsAsync<ArgumentException>(
+            () => _sut.UpdateGroupNameAsync(id, "!@#$%", CancellationToken.None));
+        Assert.Contains("required", ex.Message);
+    }
+
+    [Fact]
+    public async Task UpdateGroupNameAsync_ProfaneName_Throws()
+    {
+        var id = Guid.NewGuid();
+        var group = new Group { Id = id, Name = "Old", CreatedAtUtc = DateTime.UtcNow, Members = new List<Person>() };
+        _repoMock.Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>()))
+                 .ReturnsAsync(group);
+
+        var ex = await Assert.ThrowsAsync<ArgumentException>(
+            () => _sut.UpdateGroupNameAsync(id, "shit", CancellationToken.None));
+        Assert.Contains("inappropriate", ex.Message);
     }
 }

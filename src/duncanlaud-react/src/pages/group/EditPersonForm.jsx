@@ -271,25 +271,6 @@ export default function EditPersonForm({ groupId, personId, onSuccess, onCancel 
         </div>
 
         <div className="add-person-form__field">
-          <label>Birthday <span aria-hidden="true">*</span></label>
-          <div className="add-person-form__date-row">
-            <select id="editBirthYear" value={form.birthYear} onChange={set('birthYear')} aria-label="Birth year">
-              <option value="">Year</option>
-              {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
-            </select>
-            <select id="editBirthMonth" value={form.birthMonth} onChange={set('birthMonth')} aria-label="Birth month">
-              <option value="">Month</option>
-              {MONTHS.map((m, i) => <option key={i} value={i + 1}>{m}</option>)}
-            </select>
-            <select id="editBirthDay" value={form.birthDay} onChange={set('birthDay')} aria-label="Birth day">
-              <option value="">Day</option>
-              {daysInMonth.map(d => <option key={d} value={d}>{d}</option>)}
-            </select>
-          </div>
-          {errors.birthDate && <span className="add-person-form__error" role="alert">{errors.birthDate}</span>}
-        </div>
-
-        <div className="add-person-form__field">
           <label htmlFor="editEmail">Email</label>
           <input id="editEmail" type="email" value={form.email} onChange={set('email')}
             maxLength={254} autoComplete="email" placeholder="name@example.com" />
