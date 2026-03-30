@@ -1,10 +1,13 @@
 using System.Collections.Generic;
 using System.IO;
 using AspNetCoreRateLimit;
+using DuncanLaud.Analytics;
+using DuncanLaud.Analytics.Services;
 using DuncanLaud.Infrastructure.Data;
 using DuncanLaud.Infrastructure.Interfaces;
 using DuncanLaud.Infrastructure.Repositories;
 using DuncanLaud.Infrastructure.Services;
+using DuncanLaud.WebUI.Middleware;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -51,6 +54,10 @@ namespace DuncanLaud.WebUI
             services.AddSingleton<IProcessingStrategy, AsyncKeyLockProcessingStrategy>();
             services.AddInMemoryRateLimiting();
 
+            services.AddDbContext<AnalyticsDbContext>(options =>
+                options.UseSqlServer(Configuration.GetConnectionString("Analytics")));
+            services.AddScoped<IAnalyticsService, AnalyticsService>();
+
             services.AddRouting();
 
             services.AddEndpointsApiExplorer();
@@ -62,6 +69,9 @@ namespace DuncanLaud.WebUI
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            // Exception logging must be outermost so it catches failures from every layer
+            app.UseMiddleware<ExceptionLoggingMiddleware>();
+
             // Auto-apply EF Core migrations on startup (skip for InMemory provider used in tests).
             // Wrapped in try-catch so a DB failure never blocks middleware registration —
             // without this, a missing connection string causes Configure() to abort before
@@ -78,6 +88,16 @@ namespace DuncanLaud.WebUI
                     else
                     {
                         db.Database.EnsureCreated();
+                    }
+
+                    var analyticsDb = scope.ServiceProvider.GetRequiredService<AnalyticsDbContext>();
+                    if (analyticsDb.Database.IsRelational())
+                    {
+                        analyticsDb.Database.Migrate();
+                    }
+                    else
+                    {
+                        analyticsDb.Database.EnsureCreated();
                     }
                 }
             }
@@ -129,6 +149,8 @@ namespace DuncanLaud.WebUI
 
             // Rate Limiting
             app.UseIpRateLimiting();
+
+            app.UseMiddleware<AnalyticsMiddleware>();
 
             // Development: React files live in ../duncanlaud-react/dist after running
             //   "npm run build" in the react project.
