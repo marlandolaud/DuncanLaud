@@ -1,5 +1,6 @@
 using DuncanLaud.Analytics.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System.Net;
 using System.Net.Sockets;
 using System.Security.Cryptography;
@@ -10,8 +11,13 @@ namespace DuncanLaud.Analytics.Services;
 public class AnalyticsService : IAnalyticsService
 {
     private readonly AnalyticsDbContext _db;
+    private readonly ILogger<AnalyticsService> logger;
 
-    public AnalyticsService(AnalyticsDbContext db) => _db = db;
+    public AnalyticsService(AnalyticsDbContext db, ILogger<AnalyticsService> logger)
+    {
+        _db = db;
+        this.logger = logger;
+    }
 
     private static readonly string[] BotKeywords =
     [
@@ -21,10 +27,11 @@ public class AnalyticsService : IAnalyticsService
 
     public async Task TrackAsync(AnalyticsRequest request)
     {
+        string ipPrefix = null;
         try
         {
             var ipHash    = HashString(request.IpAddress);
-            var ipPrefix  = GetIpPrefix(request.IpAddress);
+            ipPrefix  = GetIpPrefix(request.IpAddress);
             var uaHash    = HashString(request.UserAgent ?? string.Empty);
             var isBot     = DetectBot(request.UserAgent);
             var now       = DateTime.UtcNow;
@@ -92,9 +99,11 @@ public class AnalyticsService : IAnalyticsService
 
             await _db.SaveChangesAsync();
         }
-        catch
+        catch (Exception ex)
         {
-            // Analytics must never affect business responses
+                logger.LogError(ex,
+                    "Failure to capture analytics {IP}",
+                    ipPrefix);
         }
     }
 

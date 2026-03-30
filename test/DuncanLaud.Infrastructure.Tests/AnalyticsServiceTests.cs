@@ -2,6 +2,7 @@ using DuncanLaud.Analytics;
 using DuncanLaud.Analytics.Entities;
 using DuncanLaud.Analytics.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace DuncanLaud.Infrastructure.Tests;
 
@@ -79,7 +80,7 @@ public class AnalyticsServiceTests
     public async Task TrackAsync_NewSession_CreatesSessionAndPageEvent()
     {
         using var db = CreateDb();
-        var svc = new AnalyticsService(db);
+        var svc = new AnalyticsService(db, NullLogger<AnalyticsService>.Instance);
 
         await svc.TrackAsync(new AnalyticsRequest(
             IpAddress: "1.2.3.4",
@@ -100,7 +101,7 @@ public class AnalyticsServiceTests
     public async Task TrackAsync_ExistingOpenSession_ReusesSession()
     {
         using var db = CreateDb();
-        var svc = new AnalyticsService(db);
+        var svc = new AnalyticsService(db, NullLogger<AnalyticsService>.Instance);
 
         var request = new AnalyticsRequest(
             IpAddress: "1.2.3.4",
@@ -124,7 +125,7 @@ public class AnalyticsServiceTests
     public async Task TrackAsync_ApiRequest_CreatesApiEvent()
     {
         using var db = CreateDb();
-        var svc = new AnalyticsService(db);
+        var svc = new AnalyticsService(db, NullLogger<AnalyticsService>.Instance);
 
         await svc.TrackAsync(new AnalyticsRequest(
             IpAddress: "1.2.3.4",
@@ -145,7 +146,7 @@ public class AnalyticsServiceTests
     public async Task TrackAsync_BotRequest_FlagsSession()
     {
         using var db = CreateDb();
-        var svc = new AnalyticsService(db);
+        var svc = new AnalyticsService(db, NullLogger<AnalyticsService>.Instance);
 
         await svc.TrackAsync(new AnalyticsRequest(
             IpAddress: "1.2.3.4",
@@ -169,7 +170,7 @@ public class AnalyticsServiceTests
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
         var db = new ThrowingAnalyticsDbContext(options);
-        var svc = new AnalyticsService(db);
+        var svc = new AnalyticsService(db, NullLogger<AnalyticsService>.Instance);
 
         // Should not throw
         await svc.TrackAsync(new AnalyticsRequest(
@@ -202,7 +203,7 @@ public class AnalyticsServiceTests
         db.Sessions.Add(expiredSession);
         await db.SaveChangesAsync();
 
-        var svc = new AnalyticsService(db);
+        var svc = new AnalyticsService(db, NullLogger<AnalyticsService>.Instance);
         await svc.TrackAsync(new AnalyticsRequest(
             IpAddress: "1.2.3.4",
             UserAgent: "Mozilla/5.0",
@@ -221,7 +222,7 @@ public class AnalyticsServiceTests
     public async Task TrackAsync_LongPath_Truncates()
     {
         using var db = CreateDb();
-        var svc = new AnalyticsService(db);
+        var svc = new AnalyticsService(db, NullLogger<AnalyticsService>.Instance);
         var longPath = "/" + new string('a', 1499);
 
         await svc.TrackAsync(new AnalyticsRequest(

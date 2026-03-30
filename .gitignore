@@ -342,3 +342,5 @@ healthchecksdb
 dockercompose/.env
 .env
 /coverage
+/CoverageMerged/Cobertura.xml
+/.claude/settings.local.json

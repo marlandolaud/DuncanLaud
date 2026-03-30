@@ -2,6 +2,7 @@ using DuncanLaud.Domain.Services;
 using DuncanLaud.Infrastructure.Entities;
 using DuncanLaud.Infrastructure.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using ProfanityFilter;
 
 namespace DuncanLaud.Infrastructure.Services;
@@ -9,9 +10,14 @@ namespace DuncanLaud.Infrastructure.Services;
 public class GroupService : IGroupService
 {
     private readonly IGroupRepository _groupRepo;
+    private readonly ILogger<GroupService> logger;
     private static readonly ProfanityFilter.ProfanityFilter ProfanityChecker = new();
 
-    public GroupService(IGroupRepository groupRepo) => _groupRepo = groupRepo;
+    public GroupService(IGroupRepository groupRepo, ILogger<GroupService> logger)
+    {
+        _groupRepo = groupRepo;
+        this.logger = logger;
+    }
 
     public async Task<Group?> GetGroupAsync(Guid groupId, CancellationToken ct)
         => await _groupRepo.GetByIdAsync(groupId, ct);
@@ -49,9 +55,9 @@ public class GroupService : IGroupService
             await _groupRepo.SaveChangesAsync(ct);
             return group;
         }
-        catch (DbUpdateException)
+        catch (DbUpdateException ex)
         {
-            // Concurrent insert (e.g. React StrictMode double-fire) — return the winner's row
+            logger.LogError(ex, "DbUpdateException Concurrent insert (e.g. React StrictMode double-fire) — return the winner's row");
             return (await _groupRepo.GetByIdAsync(groupId, ct))!;
         }
     }

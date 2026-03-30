@@ -2,6 +2,7 @@ using DuncanLaud.Infrastructure.Entities;
 using DuncanLaud.Infrastructure.Interfaces;
 using DuncanLaud.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 
 namespace DuncanLaud.Infrastructure.Tests;
@@ -11,7 +12,7 @@ public class GroupServiceTests
     private readonly Mock<IGroupRepository> _repoMock = new();
     private readonly GroupService _sut;
 
-    public GroupServiceTests() => _sut = new GroupService(_repoMock.Object);
+    public GroupServiceTests() => _sut = new GroupService(_repoMock.Object, NullLogger<GroupService>.Instance);
 
     // ── GetGroupAsync ──────────────────────────────────
 
