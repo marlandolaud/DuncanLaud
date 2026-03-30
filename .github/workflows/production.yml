@@ -30,9 +30,20 @@ jobs:
           dotnet-version: '10'
 
       - name: Inject connection string
+        env:
+          CONN: ${{ secrets.DB_CONNECTIONSTRING }}
         run: |
-          sed -i 's|"DefaultConnection": ""|"DefaultConnection": "${{ secrets.DB_CONNECTIONSTRING }}"|g' src/DuncanLaud.WebUI/appsettings.Production.json
-          sed -i 's|"Analytics": ""|"Analytics": "${{ secrets.DB_CONNECTIONSTRING }}"|g' src/DuncanLaud.WebUI/appsettings.Production.json
+          python3 - <<'EOF'
+          import json, os
+          path = 'src/DuncanLaud.WebUI/appsettings.Production.json'
+          conn = os.environ['CONN']
+          with open(path, 'r') as f:
+              data = json.load(f)
+          data['ConnectionStrings']['DefaultConnection'] = conn
+          data['ConnectionStrings']['Analytics'] = conn
+          with open(path, 'w') as f:
+              json.dump(data, f, indent=2)
+          EOF
 
 
       - name: Build the application
