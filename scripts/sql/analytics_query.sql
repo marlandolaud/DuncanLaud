@@ -11,18 +11,17 @@ SELECT
     s.SessionEnd,
     s.EventCount,
     s.IsBot,
-    (select count(1) from analytics.page_events pe where pe.SessionId = s.SessionId) AS page_views,
-    (select count(1) from analytics.api_events ae where ae.SessionId = s.SessionId) AS api_calls
+    pe.page_views,
+    ae.api_calls
 FROM analytics.sessions s
-GROUP BY
-    s.SessionId,
-    s.IpPrefix,
-    s.SessionStart,
-    s.SessionEnd,
-    s.EventCount,
-    s.IsBot
+CROSS APPLY (
+    SELECT COUNT(1) AS page_views
+    FROM analytics.page_events
+    WHERE SessionId = s.SessionId
+) pe
+CROSS APPLY (
+    SELECT COUNT(1) AS api_calls
+    FROM analytics.api_events
+    WHERE SessionId = s.SessionId
+) ae
 ORDER BY s.SessionStart DESC;
-
-select * from analytics.sessions
-select * from analytics.page_events
-select * from analytics.api_events
