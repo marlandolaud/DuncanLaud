@@ -11,6 +11,7 @@ const MONTHS = [
 ];
 const CURRENT_YEAR = new Date().getFullYear();
 const YEARS = Array.from({ length: CURRENT_YEAR - 1900 + 1 }, (_, i) => CURRENT_YEAR - i);
+const SENTINEL_BIRTH_YEAR = 1904;
 
 export default function EditPersonForm({ groupId, personId, onSuccess, onCancel }) {
   const [form, setForm] = useState({
@@ -42,7 +43,7 @@ export default function EditPersonForm({ groupId, personId, onSuccess, onCancel 
           firstName: person.firstName,
           lastName: person.lastName,
           preferredName: person.preferredName || '',
-          birthYear: y ? String(Number(y)) : '',
+          birthYear: (y && Number(y) !== SENTINEL_BIRTH_YEAR) ? String(Number(y)) : '',
           birthMonth: m ? String(Number(m)) : '',
           birthDay: d ? String(Number(d)) : '',
           email: person.email || '',
@@ -86,9 +87,9 @@ export default function EditPersonForm({ groupId, personId, onSuccess, onCancel 
   }
 
   const daysInMonth = useMemo(() => {
-    const y = Number(form.birthYear);
+    const y = Number(form.birthYear) || SENTINEL_BIRTH_YEAR;
     const m = Number(form.birthMonth);
-    const max = (y && m) ? new Date(y, m, 0).getDate() : 31;
+    const max = m ? new Date(y, m, 0).getDate() : 31;
     return Array.from({ length: max }, (_, i) => i + 1);
   }, [form.birthYear, form.birthMonth]);
 
@@ -132,9 +133,9 @@ export default function EditPersonForm({ groupId, personId, onSuccess, onCancel 
     if (form.lastName.length > 100) errs.lastName = 'Last name must be 100 characters or fewer.';
     if (form.preferredName && form.preferredName.length < 2)
       errs.preferredName = 'Preferred name must be at least 2 characters (letters and numbers only).';
-    if (!form.birthYear || !form.birthMonth || !form.birthDay) {
-      errs.birthDate = 'Birthday is required.';
-    } else {
+    if (!form.birthMonth || !form.birthDay) {
+      errs.birthDate = 'Birthday month and day are required.';
+    } else if (form.birthYear) {
       const bd = new Date(Number(form.birthYear), Number(form.birthMonth) - 1, Number(form.birthDay));
       const today = new Date();
       if (bd >= today) errs.birthDate = 'Birthday must be in the past.';
@@ -154,7 +155,8 @@ export default function EditPersonForm({ groupId, personId, onSuccess, onCancel 
     setSubmitError('');
 
     try {
-      const birthDate = `${form.birthYear}-${String(form.birthMonth).padStart(2, '0')}-${String(form.birthDay).padStart(2, '0')}`;
+      const year = form.birthYear || SENTINEL_BIRTH_YEAR;
+      const birthDate = `${year}-${String(form.birthMonth).padStart(2, '0')}-${String(form.birthDay).padStart(2, '0')}`;
       await updatePerson(groupId, personId, {
         firstName: form.firstName,
         lastName: form.lastName,
