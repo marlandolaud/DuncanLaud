@@ -344,24 +344,6 @@
   color: #999;
   margin-top: 0.1rem;
 }
-[data-tooltip] {
-  cursor: default;
-}
-[data-tooltip]:hover::after {
-  content: attr(data-tooltip);
-  position: absolute;
-  bottom: calc(100% + 6px);
-  right: 0;
-  background: #2c2c2c;
-  color: #fff;
-  font-size: 0.75rem;
-  font-weight: 400;
-  padding: 0.3rem 0.6rem;
-  border-radius: 4px;
-  white-space: nowrap;
-  pointer-events: none;
-  z-index: 10;
-}
 
 /* ── Add person form ────────────────────────────────── */
 .add-person-form {
