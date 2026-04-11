@@ -14,7 +14,8 @@ import MyGroupPage from './pages/group/MyGroupPage';
 function ScrollToTop() {
   const { pathname } = useLocation();
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    const el = document.getElementById('main-content');
+    window.scrollTo({ top: el ? el.offsetTop : 0, behavior: 'smooth' });
   }, [pathname]);
   return null;
 }

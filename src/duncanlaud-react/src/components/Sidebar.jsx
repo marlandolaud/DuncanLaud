@@ -6,7 +6,8 @@ export default function Sidebar() {
   const navigate = useNavigate();
 
   const handleBookClick = (urlSlug) => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    const el = document.getElementById('main-content');
+    window.scrollTo({ top: el ? el.offsetTop : 0, behavior: 'smooth' });
     navigate(`/book/${urlSlug}`);
   };
 
