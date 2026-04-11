@@ -445,6 +445,12 @@
   font-size: 0.8rem;
   color: #888;
 }
+.add-person-form__field-help {
+  font-size: 0.78rem;
+  color: #777;
+  line-height: 1.3;
+  margin-top: 0.1rem;
+}
 .add-person-form__field input {
   padding: 0.65rem 0.85rem;
   border: 1.5px solid #ccc;
