@@ -12,6 +12,7 @@ public class BirthdayCalculatorTests
     {
         var today = new DateOnly(2026, 3, 22);
         var birth = new DateOnly(1990, 3, 22);
+
         Assert.Equal(0, BirthdayCalculator.DaysUntil(birth, today));
     }
 

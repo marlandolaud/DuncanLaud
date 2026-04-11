@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Outlet, useLocation } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import Navbar from './components/Navbar';
 import Splash from './components/Splash';
 import Sidebar from './components/Sidebar';
@@ -10,11 +10,14 @@ import AboutPage from './pages/AboutPage';
 import BookPage from './pages/BookPage';
 import MyGroupPage from './pages/group/MyGroupPage';
 
-// Scroll to top on route change
+// Scroll to main content on route change, but not on initial load
 function ScrollToTop() {
   const { pathname } = useLocation();
+  const isFirstRender = useRef(true);
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (isFirstRender.current) { isFirstRender.current = false; return; }
+    const el = document.getElementById('main-content');
+    window.scrollTo({ top: el ? el.offsetTop : 0, behavior: 'smooth' });
   }, [pathname]);
   return null;
 }

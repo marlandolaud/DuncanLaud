@@ -273,9 +273,15 @@ export default function EditPersonForm({ groupId, personId, onSuccess, onCancel 
         </div>
 
         <div className="add-person-form__field">
-          <label htmlFor="editEmail">Email</label>
+          <label htmlFor="editEmail">
+            Email
+            <span className="add-person-form__field-hint"> (optional)</span>
+          </label>
           <input id="editEmail" type="email" value={form.email} onChange={set('email')}
             maxLength={254} autoComplete="email" placeholder="name@example.com" />
+          <span className="add-person-form__field-help">
+            Only used to send birthday reminders and verify your identity.
+          </span>
           {errors.email && <span className="add-person-form__error" role="alert">{errors.email}</span>}
         </div>
       </div>

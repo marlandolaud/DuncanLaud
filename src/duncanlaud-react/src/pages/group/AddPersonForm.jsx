@@ -216,10 +216,13 @@ export default function AddPersonForm({ groupId, onSuccess, onCancel, isFirstMem
         </div>
 
         <div className="add-person-form__field">
-          <label>Birthday <span aria-hidden="true">*</span></label>
+          <label>
+            Birthday <span aria-hidden="true">*</span>
+            <span className="add-person-form__field-hint"> (year optional)</span>
+          </label>
           <div className="add-person-form__date-row">
             <select id="birthYear" value={form.birthYear} onChange={set('birthYear')} aria-label="Birth year">
-              <option value="">Year (optional)</option>
+              <option value="">Year</option>
               {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
             </select>
             <select id="birthMonth" value={form.birthMonth} onChange={set('birthMonth')} aria-label="Birth month">
@@ -235,9 +238,15 @@ export default function AddPersonForm({ groupId, onSuccess, onCancel, isFirstMem
         </div>
 
         <div className="add-person-form__field">
-          <label htmlFor="email">Email</label>
+          <label htmlFor="email">
+            Email
+            <span className="add-person-form__field-hint"> (optional)</span>
+          </label>
           <input id="email" type="email" value={form.email} onChange={set('email')}
             maxLength={254} autoComplete="email" placeholder="name@example.com" />
+          <span className="add-person-form__field-help">
+            Only used to send birthday reminders and verify your identity.
+          </span>
           {errors.email && <span className="add-person-form__error" role="alert">{errors.email}</span>}
         </div>
       </div>
