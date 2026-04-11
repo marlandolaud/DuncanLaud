@@ -216,10 +216,13 @@ export default function AddPersonForm({ groupId, onSuccess, onCancel, isFirstMem
         </div>
 
         <div className="add-person-form__field">
-          <label>Birthday <span aria-hidden="true">*</span></label>
+          <label>
+            Birthday <span aria-hidden="true">*</span>
+            <span className="add-person-form__field-hint"> (year optional)</span>
+          </label>
           <div className="add-person-form__date-row">
             <select id="birthYear" value={form.birthYear} onChange={set('birthYear')} aria-label="Birth year">
-              <option value="">Year (optional)</option>
+              <option value="">Year</option>
               {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
             </select>
             <select id="birthMonth" value={form.birthMonth} onChange={set('birthMonth')} aria-label="Birth month">

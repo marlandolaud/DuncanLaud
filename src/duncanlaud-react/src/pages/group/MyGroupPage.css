@@ -440,6 +440,11 @@
   font-weight: 600;
   color: #444;
 }
+.add-person-form__field-hint {
+  font-weight: 400;
+  font-size: 0.8rem;
+  color: #888;
+}
 .add-person-form__field input {
   padding: 0.65rem 0.85rem;
   border: 1.5px solid #ccc;
