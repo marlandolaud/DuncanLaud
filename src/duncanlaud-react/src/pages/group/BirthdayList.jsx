@@ -5,7 +5,7 @@ const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Frid
 const MONTH_NAMES = ['January','February','March','April','May','June',
                      'July','August','September','October','November','December'];
 
-function calcDaysUntil(birthDateDisplay) {
+export function calcDaysUntil(birthDateDisplay) {
   const parts = birthDateDisplay.split(' ');
   const month = MONTH_NAMES.indexOf(parts[0]);
   let day = parseInt(parts[1], 10);

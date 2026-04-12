@@ -5,8 +5,9 @@ import {
 } from '../../services/groupApi';
 import AddPersonForm from './AddPersonForm';
 import EditPersonForm from './EditPersonForm';
-import BirthdayList from './BirthdayList';
+import BirthdayList, { calcDaysUntil } from './BirthdayList';
 import MemberList from './MemberList';
+import CelebrationOverlay from './CelebrationOverlay';
 
 const STATE = {
   LOADING: 'loading',
@@ -327,6 +328,10 @@ export default function GroupLandingView({ groupId }) {
   }
 
   // LANDING view
+  const hasBirthdayToday = birthdays.some(
+    (p) => calcDaysUntil(p.birthDateDisplay) === 0
+  );
+
   return (
     <div className="group-page">
       <div className="group-header">
@@ -359,6 +364,7 @@ export default function GroupLandingView({ groupId }) {
       </div>
 
       <section className="group-birthdays">
+        {hasBirthdayToday && <CelebrationOverlay theme="birthday" />}
         <h2 className="group-birthdays__heading">Upcoming Birthdays (next 60 days)</h2>
         <BirthdayList birthdays={birthdays} groupId={groupId} imageVer={imageVer} />
       </section>

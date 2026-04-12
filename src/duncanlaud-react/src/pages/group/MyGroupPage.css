@@ -705,6 +705,74 @@
   background: #fdf0ed;
 }
 
+/* ── Celebration overlay animations ────────────────── */
+.group-birthdays {
+  position: relative;
+  overflow: hidden;
+}
+
+.celebration {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.celebration__particle {
+  position: absolute;
+  will-change: transform, opacity;
+  opacity: 0;
+}
+
+.celebration__particle--balloon {
+  bottom: 0;
+  font-size: 2rem;
+  animation:
+    celebration-rise var(--_dur, 7s) var(--_delay, 0s) ease-out forwards,
+    celebration-wobble var(--_dur, 7s) var(--_delay, 0s) ease-in-out forwards;
+  animation-delay: var(--_delay, 0s);
+}
+
+.celebration__particle--sprinkle {
+  top: 0;
+  font-size: 1.2rem;
+  animation: celebration-fall var(--_dur, 6s) var(--_delay, 0s) ease-in forwards;
+}
+
+.celebration__particle--cake {
+  bottom: 0;
+  font-size: 1.8rem;
+  animation: celebration-rise var(--_dur, 8s) var(--_delay, 0s) ease-out forwards;
+}
+
+@keyframes celebration-rise {
+  0%   { transform: translateY(0) scale(0.7); opacity: 0; }
+  8%   { opacity: 1; }
+  50%  { transform: translateY(-50vh) scale(1); }
+  85%  { opacity: 1; }
+  100% { transform: translateY(-110vh) scale(0.9); opacity: 0; }
+}
+
+@keyframes celebration-fall {
+  0%   { transform: translateY(0) rotate(0deg); opacity: 0; }
+  8%   { opacity: 1; }
+  85%  { opacity: 1; }
+  100% { transform: translateY(80vh) rotate(720deg); opacity: 0; }
+}
+
+@keyframes celebration-wobble {
+  0%, 100% { margin-left: 0; }
+  25%      { margin-left: -12px; }
+  75%      { margin-left: 12px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .celebration {
+    display: none;
+  }
+}
+
 /* ── Responsive ─────────────────────────────────────── */
 @media (max-width: 480px) {
   .group-page {
