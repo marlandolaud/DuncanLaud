@@ -1,5 +1,28 @@
 export const books = [
   {
+    id: 5,
+    urlSlug: 'mi_dear_jamaica',
+    isbn10: '1',
+    isbn13: '979-8997048808',
+    name: 'Mi Dear Jamaica: Love Letters Home',
+    pages: 127,
+    publisher: '',
+    publishDate: '2026-07-11',
+    language: 'English',
+    suggestedRetailPriceUSD: [20.0],
+    author: 'C.A. Duncan-Laud',
+    thumbnailURL: '/img/MiDearJamaicaSmall.jpg',
+    bookImageURL: '/img/MiDearJamaica1.jpg',
+    bookImageURL2: '/img/MiDearJamaica2.jpg',
+    amazonId: 'B0H8HFT7XQ',
+    purchaseURL: 'https://www.amazon.com/dp/B0H8HFT7XQ',
+    descriptionHeading:
+      'The pages of this book capture the essence and celebrate the beauty, resilience, and spirit of Jamaica - land we love.',
+    descriptionBody: `This collection spans several decades of Jamaican life, tracing cherished memories from childhood to adulthood and highlighting the country's cultural, spiritual, and social traditions. These verses invite older readers to journey back in time while reconnecting with the present, and they introduce younger generations to the heartbeat of our nation.
+
+This book is infused with Jamaican wisdom through proverbs and humor; a mouth-watering dish, seasoned with pride, and served with love and loyalty to our beautiful island home.`,
+  },
+  {
     id: 4,
     urlSlug: 'wings_of_hope',
     isbn10: '1',
@@ -124,6 +147,17 @@ export const homeArticles = [
     body: `Hi there! I'm Christine Duncan-Laud, a writer who's absolutely passionate about the world of poetry. I believe poetry is a magical way to express feelings, tell stories, and discover new ideas.
 
 Through my books, I aim to share the beauty and power of poetry with readers of all ages. Whether you are a poetry lover or just starting to explore this fascinating genre, I have something for everyone. So come on in, take a look around, and let's discover the magic of poetry together!`,
+  },
+  {
+    id: 4,
+    imgURL: '/img/W2K-Mi Dear Jamaica-3D Book Mockup.png',
+    heading: 'Now Available — Mi Dear Jamaica: Love Letters Home',
+    subheading:
+      'A heartfelt collection of poems that celebrate the beauty, culture, and spirit of Jamaica – the land we love.',
+    body: `This collection spans several decades of Jamaican life, tracing cherished memories from childhood to adulthood and highlighting the country's cultural, spiritual, and social traditions. These verses invite older readers to journey back in time while reconnecting with the present, and they introduce younger generations to the heartbeat of our nation.
+
+This book is infused with Jamaican wisdom through proverbs and humor; a mouth-watering dish, seasoned with pride, and served with love and loyalty to our beautiful island home.`,
+    linkSlug: 'mi_dear_jamaica',
   },
   {
     id: 2,
